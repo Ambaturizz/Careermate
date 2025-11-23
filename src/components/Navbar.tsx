@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -28,12 +29,9 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
-          <motion.div
-            className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent"
-            whileHover={{ scale: 1.05 }}
-          >
+          <Link to="/" className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent hover:opacity-80 transition-opacity cursor-pointer">
             CareerMate
-          </motion.div>
+          </Link>
 
           <div className="hidden md:flex items-center gap-8">
             <a href="#features" className="text-foreground hover:text-primary transition-colors">
