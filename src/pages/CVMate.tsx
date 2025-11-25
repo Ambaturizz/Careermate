@@ -1,5 +1,5 @@
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, FileText, Sparkles, TrendingUp, ArrowRight, Info, Upload, X, AlertCircle, Zap, FileCheck } from 'lucide-react';
+import { CheckCircle2, FileText, Sparkles, TrendingUp, ArrowRight, Info, Upload, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -8,6 +8,7 @@ import Footer from '@/components/Footer';
 import { useState, useRef, useCallback } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Slider } from '@/components/ui/slider';
+import { useNavigate } from 'react-router-dom';
 import {
   Popover,
   PopoverContent,
@@ -16,6 +17,7 @@ import {
 
 const CVMate = () => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
   const [cvScore, setCvScore] = useState(45);
   const [comparison, setComparison] = useState([50]);
   const containerRef = useRef(null);
@@ -27,7 +29,6 @@ const CVMate = () => {
   // Upload & Analysis States
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isScanning, setIsScanning] = useState(false);
-  const [showResults, setShowResults] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
   const [scanningStep, setScanningStep] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -38,67 +39,8 @@ const CVMate = () => {
     "Mengecek Kata Kunci...",
     "Mendeteksi Typo...",
     "Menghitung Skor ATS...",
+    "Menyiapkan Saran..."
   ];
-
-  // Mock Analysis Results
-  const analysisResults = {
-    score: 65,
-    issues: [
-      {
-        id: 1,
-        severity: 'high',
-        icon: AlertCircle,
-        title: 'Format Tidak Terbaca',
-        description: 'Penggunaan kolom ganda membingungkan ATS.',
-        color: 'text-destructive'
-      },
-      {
-        id: 2,
-        severity: 'medium',
-        icon: AlertCircle,
-        title: 'Minim Kata Kunci',
-        description: 'Kurang kata kunci industri yang relevan.',
-        color: 'text-yellow-600'
-      },
-      {
-        id: 3,
-        severity: 'medium',
-        icon: AlertCircle,
-        title: 'Typo Ditemukan',
-        description: 'Ditemukan 3 kesalahan ejaan.',
-        color: 'text-yellow-600'
-      },
-    ],
-    suggestions: [
-      {
-        id: 1,
-        type: 'auto-fix',
-        icon: Zap,
-        title: 'Auto-Fix Format',
-        description: 'Ubah ke layout Single-Column (Standard).',
-        action: 'Apply Fix',
-        color: 'bg-accent'
-      },
-      {
-        id: 2,
-        type: 'keywords',
-        icon: Sparkles,
-        title: 'Saran Kata Kunci',
-        description: 'Tambahkan kata: Project Management, Data Analysis.',
-        action: 'Add Keywords',
-        color: 'bg-primary'
-      },
-      {
-        id: 3,
-        type: 'improvement',
-        icon: FileCheck,
-        title: 'Perbaikan Kalimat',
-        before: 'Did project work for company',
-        after: 'Led cross-functional team of 5 to deliver strategic project',
-        color: 'bg-accent'
-      },
-    ]
-  };
 
   const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.2], [0.8, 1]);
@@ -181,8 +123,7 @@ const CVMate = () => {
   const handleFileSelect = useCallback((file: File) => {
     if (file && (file.type === 'application/pdf' || file.type === 'application/msword' || file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')) {
       setUploadedFile(file);
-      setShowResults(false);
-      startScanning();
+      startScanning(file);
     }
   }, []);
 
@@ -209,41 +150,32 @@ const CVMate = () => {
     }
   }, [handleFileSelect]);
 
-  const startScanning = () => {
+  const startScanning = (file: File) => {
     setIsScanning(true);
     setScanProgress(0);
     setScanningStep(0);
 
-    // Simulate scanning progress
-    const interval = setInterval(() => {
-      setScanProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setTimeout(() => {
-            setIsScanning(false);
-            setShowResults(true);
-          }, 500);
-          return 100;
-        }
-        return prev + 2;
-      });
-    }, 60);
+    const totalSteps = scanningSteps.length;
+    let currentStep = 0;
 
-    // Change scanning steps
-    const stepInterval = setInterval(() => {
-      setScanningStep(prev => {
-        if (prev >= scanningSteps.length - 1) {
-          clearInterval(stepInterval);
-          return prev;
-        }
-        return prev + 1;
-      });
+    const interval = setInterval(() => {
+      currentStep++;
+      setScanProgress((currentStep / totalSteps) * 100);
+      setScanningStep(currentStep - 1);
+
+      if (currentStep >= totalSteps) {
+        clearInterval(interval);
+        setTimeout(() => {
+          setIsScanning(false);
+          // Navigate to dashboard
+          navigate('/cvmate/dashboard', { state: { fileName: file.name } });
+        }, 500);
+      }
     }, 800);
   };
 
   const resetUpload = () => {
     setUploadedFile(null);
-    setShowResults(false);
     setIsScanning(false);
     setScanProgress(0);
     setScanningStep(0);
@@ -449,7 +381,7 @@ const CVMate = () => {
           </motion.div>
 
           {/* Upload Zone */}
-          {!uploadedFile && !showResults && (
+          {!uploadedFile && !isScanning && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -557,7 +489,7 @@ const CVMate = () => {
                     {/* Progress Bar */}
                     <div className="space-y-2">
                       <Progress value={scanProgress} className="h-2" />
-                      <p className="text-sm text-muted-foreground">{scanProgress}%</p>
+                      <p className="text-sm text-muted-foreground">{Math.round(scanProgress)}%</p>
                     </div>
 
                     {/* File Info */}
@@ -565,213 +497,6 @@ const CVMate = () => {
                       <FileText className="w-5 h-5 text-primary" />
                       <span className="text-sm font-medium truncate">{uploadedFile?.name}</span>
                     </div>
-                  </div>
-                </Card>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Analysis Results Dashboard */}
-          <AnimatePresence>
-            {showResults && uploadedFile && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="space-y-8"
-              >
-                {/* Header with File Info */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <FileText className="w-6 h-6 text-primary" />
-                    <div>
-                      <p className="font-semibold">{uploadedFile.name}</p>
-                      <p className="text-sm text-muted-foreground">Analisis selesai</p>
-                    </div>
-                  </div>
-                  <Button variant="ghost" size="sm" onClick={resetUpload}>
-                    <X className="w-4 h-4 mr-2" />
-                    Upload Baru
-                  </Button>
-                </div>
-
-                {/* Score Card */}
-                <Card className="p-8 bg-gradient-to-br from-background to-secondary/30">
-                  <div className="grid md:grid-cols-2 gap-8 items-center">
-                    {/* Score Gauge */}
-                    <div className="text-center">
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: 0.2, type: "spring" }}
-                        className="relative inline-block"
-                      >
-                        <svg className="w-48 h-48" viewBox="0 0 200 200">
-                          {/* Background Circle */}
-                          <circle
-                            cx="100"
-                            cy="100"
-                            r="80"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="12"
-                            className="text-muted"
-                          />
-                          {/* Progress Circle */}
-                          <motion.circle
-                            cx="100"
-                            cy="100"
-                            r="80"
-                            fill="none"
-                            stroke="url(#scoreGradient)"
-                            strokeWidth="12"
-                            strokeLinecap="round"
-                            strokeDasharray={`${2 * Math.PI * 80}`}
-                            strokeDashoffset={`${2 * Math.PI * 80 * (1 - analysisResults.score / 100)}`}
-                            transform="rotate(-90 100 100)"
-                            initial={{ strokeDashoffset: 2 * Math.PI * 80 }}
-                            animate={{ strokeDashoffset: 2 * Math.PI * 80 * (1 - analysisResults.score / 100) }}
-                            transition={{ duration: 1.5, delay: 0.5 }}
-                          />
-                          <defs>
-                            <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                              <stop offset="0%" className="text-yellow-500" stopColor="currentColor" />
-                              <stop offset="100%" className="text-orange-500" stopColor="currentColor" />
-                            </linearGradient>
-                          </defs>
-                        </svg>
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div>
-                            <motion.div
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              transition={{ delay: 0.8 }}
-                              className="text-5xl font-bold"
-                            >
-                              {analysisResults.score}
-                            </motion.div>
-                            <p className="text-sm text-muted-foreground">/ 100</p>
-                          </div>
-                        </div>
-                      </motion.div>
-                    </div>
-
-                    {/* Score Summary */}
-                    <div className="space-y-4">
-                      <div>
-                        <h3 className="text-2xl font-bold mb-2">Skor ATS Anda</h3>
-                        <p className="text-muted-foreground">
-                          CV Anda cukup baik, tetapi formatnya sulit dibaca oleh mesin ATS. 
-                          Ikuti saran di bawah untuk meningkatkan peluang Anda lolos seleksi otomatis.
-                        </p>
-                      </div>
-                      <div className="flex gap-2">
-                        <div className="flex-1 p-3 bg-accent/10 rounded-lg border border-accent/20">
-                          <p className="text-xs text-muted-foreground mb-1">Keywords</p>
-                          <p className="text-xl font-bold text-accent">7/15</p>
-                        </div>
-                        <div className="flex-1 p-3 bg-primary/10 rounded-lg border border-primary/20">
-                          <p className="text-xs text-muted-foreground mb-1">Format</p>
-                          <p className="text-xl font-bold text-primary">ATS Risk</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-
-                {/* Issues & Suggestions Grid */}
-                <div className="grid lg:grid-cols-2 gap-8">
-                  {/* Left: Issues */}
-                  <div>
-                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                      <AlertCircle className="w-5 h-5 text-destructive" />
-                      Area for Improvement
-                    </h3>
-                    <div className="space-y-3">
-                      {analysisResults.issues.map((issue, index) => (
-                        <motion.div
-                          key={issue.id}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.1 }}
-                        >
-                          <Card className="p-4 hover:shadow-lg transition-shadow">
-                            <div className="flex gap-3">
-                              <issue.icon className={`w-5 h-5 flex-shrink-0 ${issue.color}`} />
-                              <div className="flex-1">
-                                <h4 className="font-semibold mb-1">{issue.title}</h4>
-                                <p className="text-sm text-muted-foreground">{issue.description}</p>
-                              </div>
-                            </div>
-                          </Card>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Right: AI Suggestions */}
-                  <div>
-                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                      <Sparkles className="w-5 h-5 text-accent" />
-                      AI Fix Suggestions
-                    </h3>
-                    <div className="space-y-3">
-                      {analysisResults.suggestions.map((suggestion, index) => (
-                        <motion.div
-                          key={suggestion.id}
-                          initial={{ opacity: 0, x: 20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.1 }}
-                        >
-                          <Card className="p-4 hover:shadow-lg transition-shadow">
-                            <div className="flex gap-3">
-                              <div className={`w-10 h-10 rounded-lg ${suggestion.color} flex items-center justify-center flex-shrink-0`}>
-                                <suggestion.icon className="w-5 h-5 text-primary-foreground" />
-                              </div>
-                              <div className="flex-1">
-                                <h4 className="font-semibold mb-1">{suggestion.title}</h4>
-                                <p className="text-sm text-muted-foreground mb-3">{suggestion.description}</p>
-                                
-                                {suggestion.type === 'improvement' && (
-                                  <div className="space-y-2 text-xs">
-                                    <div className="p-2 bg-destructive/10 rounded border border-destructive/20">
-                                      <p className="text-muted-foreground mb-1">Before:</p>
-                                      <p className="line-through">{suggestion.before}</p>
-                                    </div>
-                                    <div className="p-2 bg-accent/10 rounded border border-accent/20">
-                                      <p className="text-muted-foreground mb-1">After:</p>
-                                      <p className="font-medium">{suggestion.after}</p>
-                                    </div>
-                                  </div>
-                                )}
-                                
-                                {suggestion.action && (
-                                  <Button size="sm" variant="outline" className="mt-3">
-                                    {suggestion.action}
-                                  </Button>
-                                )}
-                              </div>
-                            </div>
-                          </Card>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Bottom CTA */}
-                <Card className="p-8 bg-gradient-to-r from-primary/10 to-accent/10 border-2 border-primary/20">
-                  <div className="text-center space-y-4">
-                    <h3 className="text-2xl font-bold">Siap Memperbaiki CV Anda?</h3>
-                    <p className="text-muted-foreground max-w-2xl mx-auto">
-                      Gunakan editor CVMate untuk menerapkan semua saran perbaikan secara otomatis. 
-                      Tingkatkan skor ATS Anda dan raih peluang interview lebih besar.
-                    </p>
-                    <Button size="lg" className="text-lg px-8">
-                      <Sparkles className="mr-2" />
-                      Edit & Perbaiki CV Saya Sekarang
-                      <ArrowRight className="ml-2" />
-                    </Button>
                   </div>
                 </Card>
               </motion.div>
