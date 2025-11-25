@@ -167,8 +167,16 @@ const CVMate = () => {
         clearInterval(interval);
         setTimeout(() => {
           setIsScanning(false);
-          // Navigate to dashboard
-          navigate('/cvmate/dashboard', { state: { fileName: file.name } });
+          // Create URL for file preview
+          const fileUrl = URL.createObjectURL(file);
+          // Navigate to dashboard with file data
+          navigate('/cvmate/dashboard', { 
+            state: { 
+              fileName: file.name,
+              fileUrl: fileUrl,
+              fileType: file.type
+            } 
+          });
         }, 500);
       }
     }, 800);
