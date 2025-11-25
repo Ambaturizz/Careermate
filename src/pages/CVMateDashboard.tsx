@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, TrendingUp, CheckCircle2, AlertCircle, Lightbulb, ArrowRight, Zap } from 'lucide-react';
+import { ChevronLeft, TrendingUp, CheckCircle2, AlertCircle, Lightbulb, ArrowRight, Zap, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -21,6 +21,8 @@ const CVMateDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const fileName = location.state?.fileName || 'your-cv.pdf';
+  const fileUrl = location.state?.fileUrl || '';
+  const fileType = location.state?.fileType || '';
 
   const [selectedIssue, setSelectedIssue] = useState<string | null>(null);
   const [cvContent, setCvContent] = useState({
@@ -157,14 +159,20 @@ const CVMateDashboard = () => {
     }, 2000);
   };
 
-  const handleBackClick = (e: React.MouseEvent) => {
-    if (issues.some(i => i.fixed)) {
-      e.preventDefault();
+  const handleBackClick = () => {
+    const hasProgress = issues.some(i => i.fixed);
+    if (hasProgress) {
       const confirmLeave = window.confirm('Progress Anda mungkin hilang. Yakin ingin kembali?');
-      if (confirmLeave) {
-        navigate('/');
-      }
+      if (!confirmLeave) return;
     }
+    
+    // Clean up the blob URL
+    if (fileUrl) {
+      URL.revokeObjectURL(fileUrl);
+    }
+    
+    // Navigate back to upload page
+    navigate('/cvmate');
   };
 
   const criticalIssues = issues.filter(i => i.category === 'critical' && !i.fixed);
@@ -177,16 +185,23 @@ const CVMateDashboard = () => {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-          <Link 
-            to="/" 
-            onClick={handleBackClick}
-            className="flex items-center gap-2 text-foreground hover:text-primary transition-colors"
-          >
-            <ChevronLeft className="h-5 w-5" />
-            <span className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleBackClick}
+              className="flex items-center gap-2 text-foreground hover:text-primary transition-colors"
+            >
+              <ChevronLeft className="h-5 w-5" />
+              <span className="font-medium">Upload Ulang</span>
+            </Button>
+            <Link 
+              to="/"
+              className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent hover:opacity-80 transition-opacity"
+            >
               CareerMate
-            </span>
-          </Link>
+            </Link>
+          </div>
           <div className="text-sm text-muted-foreground">
             Analyzing: {fileName}
           </div>
@@ -200,122 +215,206 @@ const CVMateDashboard = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="max-w-3xl mx-auto bg-background rounded-lg shadow-2xl p-12 aspect-[1/1.414]"
+            className="max-w-3xl mx-auto bg-background rounded-lg shadow-2xl overflow-hidden"
           >
-            {/* Header Section */}
-            <div 
-              ref={sectionRefs.header}
-              className={`mb-8 pb-6 border-b border-border relative transition-all duration-300 ${
-                selectedIssue === '1' 
-                  ? issues.find(i => i.id === '1')?.fixed 
-                    ? 'ring-4 ring-green-500/50 rounded-lg p-4 -m-4' 
-                    : 'ring-4 ring-red-500/50 rounded-lg p-4 -m-4 animate-pulse'
-                  : ''
-              }`}
-            >
-              <motion.h1 
-                key={cvContent.name}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-4xl font-bold mb-2"
-              >
-                {cvContent.name}
-              </motion.h1>
-              <motion.h2 
-                key={cvContent.title}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-2xl text-primary mb-4"
-              >
-                {cvContent.title}
-              </motion.h2>
-              <div className="flex gap-6 text-sm text-muted-foreground">
-                <span>{cvContent.email}</span>
-                <span>{cvContent.phone}</span>
-              </div>
-            </div>
-
-            {/* Summary Section */}
-            <div 
-              ref={sectionRefs.summary}
-              className={`mb-8 relative transition-all duration-300 ${
-                selectedIssue === '2' 
-                  ? issues.find(i => i.id === '2')?.fixed 
-                    ? 'ring-4 ring-green-500/50 rounded-lg p-4 -m-4' 
-                    : 'ring-4 ring-red-500/50 rounded-lg p-4 -m-4 animate-pulse'
-                  : ''
-              }`}
-            >
-              <h3 className="text-lg font-semibold mb-3">Professional Summary</h3>
-              <motion.p 
-                key={cvContent.summary}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-foreground/80"
-              >
-                {cvContent.summary}
-              </motion.p>
-            </div>
-
-            {/* Experience Section */}
-            <div 
-              ref={sectionRefs.experience}
-              className={`mb-8 relative transition-all duration-300 ${
-                selectedIssue === '3' 
-                  ? issues.find(i => i.id === '3')?.fixed 
-                    ? 'ring-4 ring-green-500/50 rounded-lg p-4 -m-4' 
-                    : 'ring-4 ring-red-500/50 rounded-lg p-4 -m-4 animate-pulse'
-                  : ''
-              }`}
-            >
-              <h3 className="text-lg font-semibold mb-4">Professional Experience</h3>
-              {cvContent.experience.map((exp) => (
-                <motion.div 
-                  key={exp.id + exp.role}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="mb-4"
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h4 className="font-semibold">{exp.role}</h4>
-                      <p className="text-sm text-muted-foreground">{exp.company}</p>
+            {fileUrl ? (
+              // Display actual uploaded file
+              <div className="relative w-full h-[calc(100vh-200px)]">
+                {fileType === 'application/pdf' ? (
+                  <iframe
+                    src={fileUrl}
+                    className="w-full h-full border-0"
+                    title="CV Preview"
+                  />
+                ) : fileType.startsWith('image/') ? (
+                  <img
+                    src={fileUrl}
+                    alt="CV Preview"
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-muted/50">
+                    <div className="text-center p-8">
+                      <FileText className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-muted-foreground">Preview not available for this file type</p>
+                      <p className="text-sm text-muted-foreground mt-2">{fileName}</p>
                     </div>
-                    <span className="text-sm text-muted-foreground">{exp.period}</span>
                   </div>
-                  <p className="text-sm text-foreground/80">{exp.description}</p>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Skills Section */}
-            <div 
-              ref={sectionRefs.skills}
-              className={`relative transition-all duration-300 ${
-                selectedIssue === '4' || selectedIssue === '5'
-                  ? issues.find(i => i.id === selectedIssue)?.fixed 
-                    ? 'ring-4 ring-green-500/50 rounded-lg p-4 -m-4' 
-                    : 'ring-4 ring-yellow-500/50 rounded-lg p-4 -m-4 animate-pulse'
-                  : ''
-              }`}
-            >
-              <h3 className="text-lg font-semibold mb-3">Core Skills</h3>
-              <motion.div 
-                key={cvContent.skills.join(',')}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex flex-wrap gap-2"
-              >
-                {cvContent.skills.map((skill, idx) => (
-                  <span 
-                    key={skill + idx} 
-                    className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm"
+                )}
+                
+                {/* Overlay highlights for issues */}
+                <AnimatePresence>
+                  {selectedIssue && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="absolute inset-0 pointer-events-none"
+                    >
+                      {/* Position overlay based on selected issue */}
+                      {selectedIssue === '1' && (
+                        <motion.div
+                          animate={{ 
+                            boxShadow: issues.find(i => i.id === '1')?.fixed 
+                              ? '0 0 0 4px rgba(34, 197, 94, 0.5)' 
+                              : '0 0 0 4px rgba(239, 68, 68, 0.5)' 
+                          }}
+                          className="absolute top-[10%] left-[10%] right-[10%] h-[8%] rounded"
+                        />
+                      )}
+                      {selectedIssue === '2' && (
+                        <motion.div
+                          animate={{ 
+                            boxShadow: issues.find(i => i.id === '2')?.fixed 
+                              ? '0 0 0 4px rgba(34, 197, 94, 0.5)' 
+                              : '0 0 0 4px rgba(239, 68, 68, 0.5)' 
+                          }}
+                          className="absolute top-[20%] left-[10%] right-[10%] h-[12%] rounded"
+                        />
+                      )}
+                      {selectedIssue === '3' && (
+                        <motion.div
+                          animate={{ 
+                            boxShadow: issues.find(i => i.id === '3')?.fixed 
+                              ? '0 0 0 4px rgba(34, 197, 94, 0.5)' 
+                              : '0 0 0 4px rgba(234, 179, 8, 0.5)' 
+                          }}
+                          className="absolute top-[35%] left-[10%] right-[10%] h-[10%] rounded"
+                        />
+                      )}
+                      {(selectedIssue === '4' || selectedIssue === '5') && (
+                        <motion.div
+                          animate={{ 
+                            boxShadow: issues.find(i => i.id === selectedIssue)?.fixed 
+                              ? '0 0 0 4px rgba(34, 197, 94, 0.5)' 
+                              : '0 0 0 4px rgba(234, 179, 8, 0.5)' 
+                          }}
+                          className="absolute top-[50%] left-[10%] right-[10%] h-[15%] rounded"
+                        />
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : (
+              // Fallback to mock CV if no file URL
+              <div className="p-12 aspect-[1/1.414]">
+                {/* Header Section */}
+                <div 
+                  ref={sectionRefs.header}
+                  className={`mb-8 pb-6 border-b border-border relative transition-all duration-300 ${
+                    selectedIssue === '1' 
+                      ? issues.find(i => i.id === '1')?.fixed 
+                        ? 'ring-4 ring-green-500/50 rounded-lg p-4 -m-4' 
+                        : 'ring-4 ring-red-500/50 rounded-lg p-4 -m-4 animate-pulse'
+                      : ''
+                  }`}
+                >
+                  <motion.h1 
+                    key={cvContent.name}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="text-4xl font-bold mb-2"
                   >
-                    {skill}
-                  </span>
-                ))}
-              </motion.div>
-            </div>
+                    {cvContent.name}
+                  </motion.h1>
+                  <motion.h2 
+                    key={cvContent.title}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="text-2xl text-primary mb-4"
+                  >
+                    {cvContent.title}
+                  </motion.h2>
+                  <div className="flex gap-6 text-sm text-muted-foreground">
+                    <span>{cvContent.email}</span>
+                    <span>{cvContent.phone}</span>
+                  </div>
+                </div>
+
+                {/* Summary Section */}
+                <div 
+                  ref={sectionRefs.summary}
+                  className={`mb-8 relative transition-all duration-300 ${
+                    selectedIssue === '2' 
+                      ? issues.find(i => i.id === '2')?.fixed 
+                        ? 'ring-4 ring-green-500/50 rounded-lg p-4 -m-4' 
+                        : 'ring-4 ring-red-500/50 rounded-lg p-4 -m-4 animate-pulse'
+                      : ''
+                  }`}
+                >
+                  <h3 className="text-lg font-semibold mb-3">Professional Summary</h3>
+                  <motion.p 
+                    key={cvContent.summary}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="text-foreground/80"
+                  >
+                    {cvContent.summary}
+                  </motion.p>
+                </div>
+
+                {/* Experience Section */}
+                <div 
+                  ref={sectionRefs.experience}
+                  className={`mb-8 relative transition-all duration-300 ${
+                    selectedIssue === '3' 
+                      ? issues.find(i => i.id === '3')?.fixed 
+                        ? 'ring-4 ring-green-500/50 rounded-lg p-4 -m-4' 
+                        : 'ring-4 ring-red-500/50 rounded-lg p-4 -m-4 animate-pulse'
+                      : ''
+                  }`}
+                >
+                  <h3 className="text-lg font-semibold mb-4">Professional Experience</h3>
+                  {cvContent.experience.map((exp) => (
+                    <motion.div 
+                      key={exp.id + exp.role}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="mb-4"
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h4 className="font-semibold">{exp.role}</h4>
+                          <p className="text-sm text-muted-foreground">{exp.company}</p>
+                        </div>
+                        <span className="text-sm text-muted-foreground">{exp.period}</span>
+                      </div>
+                      <p className="text-sm text-foreground/80">{exp.description}</p>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Skills Section */}
+                <div 
+                  ref={sectionRefs.skills}
+                  className={`relative transition-all duration-300 ${
+                    selectedIssue === '4' || selectedIssue === '5'
+                      ? issues.find(i => i.id === selectedIssue)?.fixed 
+                        ? 'ring-4 ring-green-500/50 rounded-lg p-4 -m-4' 
+                        : 'ring-4 ring-yellow-500/50 rounded-lg p-4 -m-4 animate-pulse'
+                      : ''
+                  }`}
+                >
+                  <h3 className="text-lg font-semibold mb-3">Core Skills</h3>
+                  <motion.div 
+                    key={cvContent.skills.join(',')}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex flex-wrap gap-2"
+                  >
+                    {cvContent.skills.map((skill, idx) => (
+                      <span 
+                        key={skill + idx} 
+                        className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </motion.div>
+                </div>
+              </div>
+            )}
           </motion.div>
         </div>
 
