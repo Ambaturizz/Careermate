@@ -1,9 +1,11 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, TrendingUp, CheckCircle2, AlertCircle, Lightbulb, ArrowRight, Zap, FileText } from 'lucide-react';
+import { ChevronLeft, TrendingUp, CheckCircle2, AlertCircle, Lightbulb, ArrowRight, Zap, FileText, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { Card } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface CVIssue {
   id: string;
@@ -25,6 +27,9 @@ const CVMateDashboard = () => {
   const fileType = location.state?.fileType || '';
 
   const [selectedIssue, setSelectedIssue] = useState<string | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
+  
   const [cvContent, setCvContent] = useState({
     name: 'John Anderson',
     title: 'Senior Produc Manger', // intentional typo
@@ -180,6 +185,38 @@ const CVMateDashboard = () => {
   const keywordIssues = issues.filter(i => i.category === 'keyword' && !i.fixed);
   const fixedIssues = issues.filter(i => i.fixed);
 
+  const templates = [
+    { 
+      id: 'corporate',
+      name: 'The Corporate', 
+      type: 'ATS-Friendly',
+      description: 'Classic serif, dense layout for banking/legal'
+    },
+    { 
+      id: 'creative',
+      name: 'The Creative', 
+      type: 'Creative',
+      description: 'Sidebar design with color accents'
+    },
+    { 
+      id: 'minimalist',
+      name: 'The Minimalist', 
+      type: 'ATS-Friendly',
+      description: 'Clean whitespace, modern sans-serif'
+    },
+    { 
+      id: 'tech',
+      name: 'The Tech', 
+      type: 'Developer',
+      description: 'Skills-focused with progress indicators'
+    },
+  ];
+
+  const handleTemplateClick = (templateId: string) => {
+    setSelectedTemplate(templateId);
+    setShowTemplateModal(true);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -297,121 +334,17 @@ const CVMateDashboard = () => {
                 </AnimatePresence>
               </div>
             ) : (
-              // Fallback to mock CV if no file URL
-              <div className="p-12 aspect-[1/1.414]">
-                {/* Header Section */}
-                <div 
-                  ref={sectionRefs.header}
-                  className={`mb-8 pb-6 border-b border-border relative transition-all duration-300 ${
-                    selectedIssue === '1' 
-                      ? issues.find(i => i.id === '1')?.fixed 
-                        ? 'ring-4 ring-green-500/50 rounded-lg p-4 -m-4' 
-                        : 'ring-4 ring-red-500/50 rounded-lg p-4 -m-4 animate-pulse'
-                      : ''
-                  }`}
-                >
-                  <motion.h1 
-                    key={cvContent.name}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="text-4xl font-bold mb-2"
+              // Show message if no file uploaded
+              <div className="w-full h-[calc(100vh-200px)] flex items-center justify-center bg-muted/50">
+                <div className="text-center p-8">
+                  <FileText className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">No CV file uploaded</p>
+                  <Button 
+                    onClick={handleBackClick}
+                    className="mt-4"
                   >
-                    {cvContent.name}
-                  </motion.h1>
-                  <motion.h2 
-                    key={cvContent.title}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="text-2xl text-primary mb-4"
-                  >
-                    {cvContent.title}
-                  </motion.h2>
-                  <div className="flex gap-6 text-sm text-muted-foreground">
-                    <span>{cvContent.email}</span>
-                    <span>{cvContent.phone}</span>
-                  </div>
-                </div>
-
-                {/* Summary Section */}
-                <div 
-                  ref={sectionRefs.summary}
-                  className={`mb-8 relative transition-all duration-300 ${
-                    selectedIssue === '2' 
-                      ? issues.find(i => i.id === '2')?.fixed 
-                        ? 'ring-4 ring-green-500/50 rounded-lg p-4 -m-4' 
-                        : 'ring-4 ring-red-500/50 rounded-lg p-4 -m-4 animate-pulse'
-                      : ''
-                  }`}
-                >
-                  <h3 className="text-lg font-semibold mb-3">Professional Summary</h3>
-                  <motion.p 
-                    key={cvContent.summary}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="text-foreground/80"
-                  >
-                    {cvContent.summary}
-                  </motion.p>
-                </div>
-
-                {/* Experience Section */}
-                <div 
-                  ref={sectionRefs.experience}
-                  className={`mb-8 relative transition-all duration-300 ${
-                    selectedIssue === '3' 
-                      ? issues.find(i => i.id === '3')?.fixed 
-                        ? 'ring-4 ring-green-500/50 rounded-lg p-4 -m-4' 
-                        : 'ring-4 ring-red-500/50 rounded-lg p-4 -m-4 animate-pulse'
-                      : ''
-                  }`}
-                >
-                  <h3 className="text-lg font-semibold mb-4">Professional Experience</h3>
-                  {cvContent.experience.map((exp) => (
-                    <motion.div 
-                      key={exp.id + exp.role}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="mb-4"
-                    >
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <h4 className="font-semibold">{exp.role}</h4>
-                          <p className="text-sm text-muted-foreground">{exp.company}</p>
-                        </div>
-                        <span className="text-sm text-muted-foreground">{exp.period}</span>
-                      </div>
-                      <p className="text-sm text-foreground/80">{exp.description}</p>
-                    </motion.div>
-                  ))}
-                </div>
-
-                {/* Skills Section */}
-                <div 
-                  ref={sectionRefs.skills}
-                  className={`relative transition-all duration-300 ${
-                    selectedIssue === '4' || selectedIssue === '5'
-                      ? issues.find(i => i.id === selectedIssue)?.fixed 
-                        ? 'ring-4 ring-green-500/50 rounded-lg p-4 -m-4' 
-                        : 'ring-4 ring-yellow-500/50 rounded-lg p-4 -m-4 animate-pulse'
-                      : ''
-                  }`}
-                >
-                  <h3 className="text-lg font-semibold mb-3">Core Skills</h3>
-                  <motion.div 
-                    key={cvContent.skills.join(',')}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="flex flex-wrap gap-2"
-                  >
-                    {cvContent.skills.map((skill, idx) => (
-                      <span 
-                        key={skill + idx} 
-                        className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm"
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                  </motion.div>
+                    Upload CV
+                  </Button>
                 </div>
               </div>
             )}
@@ -554,14 +487,321 @@ const CVMateDashboard = () => {
                 <CheckCircle2 className="h-12 w-12 mx-auto" />
                 <h3 className="font-bold text-xl">Perfect Score!</h3>
                 <p className="text-sm opacity-90">Your CV is now ATS-optimized and ready to impress recruiters.</p>
-                <Button className="w-full bg-white text-primary hover:bg-white/90">
-                  Choose Your Template <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
               </motion.div>
             )}
           </div>
         </div>
       </div>
+
+      {/* Template Selection Section */}
+      <section className="py-20 px-4 bg-secondary/20">
+        <div className="container mx-auto max-w-6xl">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-4xl font-bold mb-4">Choose Your Perfect Template</h2>
+            <p className="text-xl text-muted-foreground">Select a template to see your optimized CV in action</p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {templates.map((template, index) => (
+              <motion.div
+                key={template.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ scale: 1.03, y: -5 }}
+                className="group cursor-pointer"
+                onClick={() => handleTemplateClick(template.id)}
+              >
+                <Card className="overflow-hidden h-[420px] relative shadow-lg hover:shadow-2xl transition-all">
+                  <div className="absolute top-3 right-3 z-10">
+                    <span className="text-xs bg-background/95 backdrop-blur-sm text-foreground px-3 py-1 rounded-full border border-border/50 shadow-sm">
+                      {template.type}
+                    </span>
+                  </div>
+
+                  {/* Template Preview */}
+                  {template.id === 'corporate' && (
+                    <div className="h-full bg-background p-6">
+                      <div className="text-center border-b-2 border-foreground pb-4 mb-4">
+                        <div className="h-5 bg-foreground/90 rounded w-2/3 mx-auto mb-2" />
+                        <div className="h-3 bg-foreground/50 rounded w-1/2 mx-auto" />
+                      </div>
+                      <div className="space-y-3">
+                        <div>
+                          <div className="h-3 bg-foreground/80 rounded w-1/3 mb-2" />
+                          <div className="space-y-1 pl-2">
+                            <div className="h-2 bg-foreground/20 rounded w-full" />
+                            <div className="h-2 bg-foreground/20 rounded w-11/12" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {template.id === 'creative' && (
+                    <div className="h-full flex">
+                      <div className="w-1/3 bg-primary p-4 space-y-3">
+                        <div className="w-16 h-16 rounded-full bg-background/90 mx-auto" />
+                        <div className="space-y-2">
+                          <div className="h-2 bg-background/70 rounded" />
+                          <div className="h-2 bg-background/70 rounded w-4/5" />
+                        </div>
+                      </div>
+                      <div className="flex-1 bg-background p-4 space-y-3">
+                        <div className="h-4 bg-primary/80 rounded w-2/3" />
+                        <div className="h-3 bg-foreground/30 rounded w-1/2" />
+                      </div>
+                    </div>
+                  )}
+
+                  {template.id === 'minimalist' && (
+                    <div className="h-full bg-background p-8 space-y-6">
+                      <div className="space-y-2">
+                        <div className="h-6 bg-foreground/90 rounded w-1/2" />
+                        <div className="h-3 bg-foreground/40 rounded w-1/3" />
+                      </div>
+                      <div className="h-px bg-foreground/20 my-6" />
+                    </div>
+                  )}
+
+                  {template.id === 'tech' && (
+                    <div className="h-full bg-background p-5 space-y-4">
+                      <div className="space-y-1">
+                        <div className="h-4 bg-foreground/80 rounded w-2/3" />
+                        <div className="h-3 bg-accent/60 rounded w-1/2" />
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        <div className="px-2 py-1 bg-primary/20 rounded h-5 w-16" />
+                        <div className="px-2 py-1 bg-primary/20 rounded h-5 w-14" />
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="absolute inset-0 bg-primary/90 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <Button variant="secondary" size="sm">
+                      Preview Template
+                    </Button>
+                  </div>
+                </Card>
+
+                <div className="mt-3 px-1">
+                  <h3 className="font-semibold text-lg">{template.name}</h3>
+                  <p className="text-sm text-muted-foreground">{template.description}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Template Preview Modal */}
+      <Dialog open={showTemplateModal} onOpenChange={setShowTemplateModal}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {templates.find(t => t.id === selectedTemplate)?.name} Template
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="mt-4">
+            {selectedTemplate === 'corporate' && (
+              <div className="bg-background p-12 border rounded-lg shadow-xl">
+                <div className="text-center border-b-2 border-foreground pb-6 mb-6">
+                  <h1 className="text-4xl font-serif font-bold mb-2">{cvContent.name}</h1>
+                  <h2 className="text-xl text-primary">{cvContent.title}</h2>
+                  <div className="flex justify-center gap-4 mt-4 text-sm text-muted-foreground">
+                    <span>{cvContent.email}</span>
+                    <span>|</span>
+                    <span>{cvContent.phone}</span>
+                  </div>
+                </div>
+                
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-serif font-bold mb-3 uppercase">Professional Summary</h3>
+                    <p className="text-foreground/80 leading-relaxed">{cvContent.summary}</p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-lg font-serif font-bold mb-3 uppercase">Experience</h3>
+                    {cvContent.experience.map((exp) => (
+                      <div key={exp.id} className="mb-4">
+                        <div className="font-semibold">{exp.role}</div>
+                        <div className="text-sm text-muted-foreground">{exp.company} | {exp.period}</div>
+                        <p className="text-sm mt-2">{exp.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-lg font-serif font-bold mb-3 uppercase">Skills</h3>
+                    <p className="text-foreground/80">{cvContent.skills.join(' • ')}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {selectedTemplate === 'creative' && (
+              <div className="flex bg-background border rounded-lg shadow-xl overflow-hidden" style={{ minHeight: '800px' }}>
+                <div className="w-1/3 bg-primary text-primary-foreground p-8 space-y-6">
+                  <div className="w-32 h-32 rounded-full bg-background/90 mx-auto" />
+                  <div className="text-center">
+                    <h1 className="text-2xl font-bold mb-2">{cvContent.name}</h1>
+                    <p className="text-sm opacity-90">{cvContent.title}</p>
+                  </div>
+                  
+                  <div className="pt-6 space-y-2 text-sm">
+                    <div className="opacity-90">{cvContent.email}</div>
+                    <div className="opacity-90">{cvContent.phone}</div>
+                  </div>
+                  
+                  <div className="pt-6">
+                    <h3 className="font-bold mb-3 text-lg">Skills</h3>
+                    <div className="space-y-2">
+                      {cvContent.skills.map((skill, idx) => (
+                        <div key={idx} className="text-sm opacity-90">• {skill}</div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex-1 p-8 space-y-6">
+                  <div>
+                    <h3 className="text-xl font-bold mb-4 text-primary">Professional Summary</h3>
+                    <p className="text-foreground/80 leading-relaxed">{cvContent.summary}</p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-xl font-bold mb-4 text-primary">Professional Experience</h3>
+                    {cvContent.experience.map((exp) => (
+                      <div key={exp.id} className="mb-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <h4 className="font-semibold text-lg">{exp.role}</h4>
+                            <p className="text-sm text-muted-foreground">{exp.company}</p>
+                          </div>
+                          <span className="text-sm text-muted-foreground">{exp.period}</span>
+                        </div>
+                        <p className="text-sm text-foreground/80">{exp.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {selectedTemplate === 'minimalist' && (
+              <div className="bg-background p-16 border rounded-lg shadow-xl">
+                <div className="max-w-2xl mx-auto space-y-8">
+                  <div className="space-y-3">
+                    <h1 className="text-5xl font-light">{cvContent.name}</h1>
+                    <h2 className="text-xl text-muted-foreground">{cvContent.title}</h2>
+                    <div className="flex gap-4 text-sm text-muted-foreground">
+                      <span>{cvContent.email}</span>
+                      <span>{cvContent.phone}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="h-px bg-border" />
+                  
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-sm font-semibold uppercase tracking-wider mb-3 text-foreground/60">Summary</h3>
+                      <p className="text-foreground/80 leading-relaxed">{cvContent.summary}</p>
+                    </div>
+                    
+                    <div>
+                      <h3 className="text-sm font-semibold uppercase tracking-wider mb-4 text-foreground/60">Experience</h3>
+                      {cvContent.experience.map((exp) => (
+                        <div key={exp.id} className="mb-6">
+                          <div className="flex justify-between items-baseline mb-2">
+                            <h4 className="font-medium">{exp.role}</h4>
+                            <span className="text-sm text-muted-foreground">{exp.period}</span>
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-2">{exp.company}</p>
+                          <p className="text-sm text-foreground/80">{exp.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <div>
+                      <h3 className="text-sm font-semibold uppercase tracking-wider mb-3 text-foreground/60">Skills</h3>
+                      <div className="flex flex-wrap gap-3">
+                        {cvContent.skills.map((skill, idx) => (
+                          <span key={idx} className="text-sm text-foreground/80">{skill}</span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {selectedTemplate === 'tech' && (
+              <div className="bg-background p-12 border rounded-lg shadow-xl">
+                <div className="space-y-6">
+                  <div>
+                    <h1 className="text-4xl font-bold mb-2">{cvContent.name}</h1>
+                    <h2 className="text-xl text-accent font-medium">{cvContent.title}</h2>
+                    <div className="flex gap-3 mt-3 text-sm text-muted-foreground">
+                      <span>{cvContent.email}</span>
+                      <span>|</span>
+                      <span>{cvContent.phone}</span>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
+                      <div className="w-1 h-5 bg-accent rounded" />
+                      Technical Skills
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {cvContent.skills.map((skill, idx) => (
+                        <span key={idx} className="px-4 py-2 bg-primary/10 text-primary rounded-md text-sm font-medium">
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
+                      <div className="w-1 h-5 bg-accent rounded" />
+                      Professional Summary
+                    </h3>
+                    <p className="text-foreground/80 leading-relaxed">{cvContent.summary}</p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                      <div className="w-1 h-5 bg-accent rounded" />
+                      Work Experience
+                    </h3>
+                    {cvContent.experience.map((exp) => (
+                      <div key={exp.id} className="mb-4 pl-4 border-l-2 border-accent/30">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <h4 className="font-semibold text-lg">{exp.role}</h4>
+                            <p className="text-sm text-muted-foreground">{exp.company}</p>
+                          </div>
+                          <span className="text-sm text-muted-foreground bg-accent/10 px-3 py-1 rounded">{exp.period}</span>
+                        </div>
+                        <p className="text-sm text-foreground/80">{exp.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
