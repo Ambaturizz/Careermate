@@ -203,7 +203,7 @@ const CVMate = () => {
             className="text-center mb-16"
           >
             <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">
-              {t('cvmate_hero_title')}
+              Your Career Best Mate
             </h1>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
               {t('cvmate_hero_subtitle')}
