@@ -1,11 +1,13 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, TrendingUp, CheckCircle2, AlertCircle, Lightbulb, ArrowRight, Zap, FileText, X } from 'lucide-react';
+import { ChevronLeft, TrendingUp, CheckCircle2, AlertCircle, Lightbulb, ArrowRight, Zap, FileText, X, Download, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useToast } from '@/hooks/use-toast';
+import html2pdf from 'html2pdf.js';
 
 interface CVIssue {
   id: string;
@@ -22,6 +24,7 @@ const CVMateDashboard = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
+  const { toast } = useToast();
   const fileName = location.state?.fileName || 'your-cv.pdf';
   const fileUrl = location.state?.fileUrl || '';
   const fileType = location.state?.fileType || '';
@@ -29,6 +32,8 @@ const CVMateDashboard = () => {
   const [selectedIssue, setSelectedIssue] = useState<string | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const templateRef = useRef<HTMLDivElement>(null);
   
   const [cvContent, setCvContent] = useState({
     name: 'John Anderson',
@@ -215,6 +220,37 @@ const CVMateDashboard = () => {
   const handleTemplateClick = (templateId: string) => {
     setSelectedTemplate(templateId);
     setShowTemplateModal(true);
+  };
+
+  const handleDownloadPDF = async () => {
+    if (!templateRef.current) return;
+    
+    setIsDownloading(true);
+    
+    try {
+      const opt = {
+        margin: 0,
+        filename: 'My_New_CV.pdf',
+        image: { type: 'jpeg' as const, quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
+      };
+      
+      await html2pdf().set(opt).from(templateRef.current).save();
+      
+      toast({
+        title: "CV Berhasil Diunduh!",
+        description: "Good luck with your job hunt! 🚀",
+      });
+    } catch (error) {
+      toast({
+        title: "Download Gagal",
+        description: "Terjadi kesalahan saat mengunduh PDF. Silakan coba lagi.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   return (
@@ -604,12 +640,39 @@ const CVMateDashboard = () => {
       <Dialog open={showTemplateModal} onOpenChange={setShowTemplateModal}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>
-              {templates.find(t => t.id === selectedTemplate)?.name} Template
+            <DialogTitle className="flex items-center justify-between">
+              <span>{templates.find(t => t.id === selectedTemplate)?.name} Template</span>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowTemplateModal(false)}
+                >
+                  Ganti Template
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleDownloadPDF}
+                  disabled={isDownloading}
+                  className="gap-2"
+                >
+                  {isDownloading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Generating PDF...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="h-4 w-4" />
+                      Download PDF
+                    </>
+                  )}
+                </Button>
+              </div>
             </DialogTitle>
           </DialogHeader>
           
-          <div className="mt-4">
+          <div ref={templateRef} className="mt-4">
             {selectedTemplate === 'corporate' && (
               <div className="bg-background p-12 border rounded-lg shadow-xl">
                 <div className="text-center border-b-2 border-foreground pb-6 mb-6">
