@@ -40,6 +40,9 @@ const Navbar = () => {
             <a href="#pricing" className="text-foreground hover:text-primary transition-colors">
               {t('nav_pricing')}
             </a>
+            <Link to="/jobmate" className="text-foreground hover:text-primary transition-colors">
+              JobMate
+            </Link>
             <a href="#about" className="text-foreground hover:text-primary transition-colors">
               {t('nav_about')}
             </a>

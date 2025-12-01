@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import CVMate from "./pages/CVMate";
 import CVMateDashboard from "./pages/CVMateDashboard";
+import JobMate from "./pages/JobMate";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/cvmate" element={<CVMate />} />
               <Route path="/cvmate/dashboard" element={<CVMateDashboard />} />
+              <Route path="/jobmate" element={<JobMate />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
