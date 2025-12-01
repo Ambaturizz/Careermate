@@ -863,6 +863,27 @@ const CVMateDashboard = () => {
               </div>
             )}
           </div>
+
+          {/* Next Step CTA */}
+          <div className="mt-8 p-6 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent rounded-lg border border-primary/20">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div>
+                <h4 className="font-semibold text-lg mb-1">Siap Melamar Kerja?</h4>
+                <p className="text-sm text-muted-foreground">Lihat lowongan yang cocok dengan CV baru Anda</p>
+              </div>
+              <Button 
+                onClick={() => {
+                  setShowTemplateModal(false);
+                  navigate('/jobmate');
+                }}
+                size="lg"
+                className="bg-gradient-primary gap-2"
+              >
+                Lihat 5 Lowongan yang Cocok
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
