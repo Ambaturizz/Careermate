@@ -1,73 +1,94 @@
-# Welcome to your Lovable project
+# CareerMate
 
-## Project info
+CareerMate menggunakan npm workspaces agar frontend, backend, dan kontrak API dapat dikembangkan bersama tanpa menduplikasi tipe data.
 
-**URL**: https://lovable.dev/projects/9111b949-768e-43e4-a9dd-6db2d00d0f9d
+## Struktur
 
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/9111b949-768e-43e4-a9dd-6db2d00d0f9d) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```text
+frontend/              React + Vite
+backend/               Fastify + TypeScript
+packages/contracts/    Schema Zod dan tipe API bersama
+docs/                  Keputusan arsitektur dan roadmap AI
 ```
 
-**Edit a file directly in GitHub**
+## Persyaratan
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- Node.js 20.19+ atau 22.12+
+- npm 10 atau lebih baru
+- PostgreSQL 15+ untuk deployment production (development memakai PGlite embedded)
+- Gemini API key dari Google AI Studio untuk fitur AI hosted (Ollama tetap opsional untuk lokal)
 
-**Use GitHub Codespaces**
+## Instalasi
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```sh
+npm ci
+```
 
-## What technologies are used for this project?
+Gunakan `npm install` hanya ketika menambah atau memperbarui dependency sehingga `package-lock.json` ikut diperbarui.
 
-This project is built with:
+Salin file environment sesuai kebutuhan:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```sh
+copy backend\.env.example backend\.env
+copy frontend\.env.example frontend\.env
+```
 
-## How can I deploy this project?
+Konfigurasi development memakai `DATABASE_MODE=embedded`. Backend membuat database PostgreSQL-compatible in-memory, menjalankan migrasi, dan memuat seed terkurasi secara otomatis. Tidak dibutuhkan kredensial database untuk mencoba alur frontend–backend.
 
-Simply open [Lovable](https://lovable.dev/projects/9111b949-768e-43e4-a9dd-6db2d00d0f9d) and click on Share -> Publish.
+Untuk PostgreSQL/Supabase, ubah `DATABASE_MODE=postgres`, isi `DATABASE_URL`, lalu jalankan:
 
-## Can I connect a custom domain to my Lovable project?
+```sh
+npm run db:migrate
+npm run db:seed
+```
 
-Yes, you can!
+Mode AI pada `.env.example` default adalah `disabled`. Semua endpoint AI mewajibkan autentikasi, consent eksplisit pada setiap request, dan rate limit khusus. Rekomendasi database dan job matching tetap tersedia melalui engine deterministik tanpa mengirim data ke provider AI.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Untuk mengaktifkan Gemini, buka `backend/.env` lalu isi konfigurasi berikut:
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+```dotenv
+AI_PROVIDER=gemini
+GEMINI_BASE_URL=https://generativelanguage.googleapis.com/v1beta
+GEMINI_API_KEY=your-google-ai-studio-api-key
+GEMINI_MODEL=gemini-3.5-flash-lite
+AI_TIMEOUT_MS=60000
+```
+
+API key hanya boleh disimpan di backend. Untuk deployment, masukkan kelima nilai tersebut melalui menu environment variables milik layanan hosting backend, bukan pada hosting frontend. Ollama dan endpoint OpenAI-compatible masih didukung sebagai fallback; lihat [panduan backend](backend/README.md).
+
+## Development
+
+Jalankan pada dua terminal:
+
+```sh
+npm run dev:backend
+npm run dev:frontend
+```
+
+- Frontend: `http://localhost:8080`
+- Backend: `http://127.0.0.1:3000`
+- Health check: `http://127.0.0.1:3000/health`
+- Readiness database: `http://127.0.0.1:3000/ready`
+
+## Verifikasi
+
+```sh
+npm run build
+npm run typecheck
+npm test
+npm run lint
+```
+
+Workflow GitHub Actions menjalankan instalasi bersih dan seluruh pemeriksaan tersebut pada setiap pull request serta push ke `main`.
+
+## Supabase
+
+1. Buat project Supabase dan simpan password database di password manager.
+2. Buka **Connect**, pilih direct connection atau session pooler untuk backend yang berjalan terus-menerus.
+3. Set `DATABASE_MODE=postgres`, lalu salin connection string PostgreSQL ke `backend/.env` sebagai `DATABASE_URL`; URL-encode karakter khusus pada password.
+4. Pertahankan `DATABASE_SSL_MODE=require`, jalankan `npm run db:migrate`, lalu `npm run db:seed`.
+5. Untuk production, set `NODE_ENV=production`, `DATABASE_MODE=postgres`, `AUTH_MODE=jwks`, URL JWKS/issuer project, audience, `AUTH_SUPABASE_URL`, public anon/publishable key pada `AUTH_SUPABASE_ANON_KEY`, serta CORS origin yang spesifik.
+
+Frontend memanggil endpoint login/registrasi CareerMate; key provider tidak disimpan di browser. Jangan menaruh connection string atau service-role key di `frontend/.env` maupun `backend/.env`. Schema `app`/`career` tidak perlu diekspos lewat Data API Supabase.
+
+Dokumentasi lengkap: [deployment](docs/deployment.md), [database](docs/database.md), [sumber data](docs/data-sources.md), [arsitektur AI](docs/ai-architecture.md), dan [strategi repository](docs/repository-strategy.md).

@@ -1,0 +1,4199 @@
+{
+  "id": "f303abd8-700a-47fe-8e4c-e90583bced87",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "career.abilities": {
+      "name": "abilities",
+      "schema": "career",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "normalized_name": {
+          "name": "normalized_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_source_id": {
+          "name": "data_source_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "external_id": {
+          "name": "external_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "abilities_normalized_name_uidx": {
+          "name": "abilities_normalized_name_uidx",
+          "columns": [
+            {
+              "expression": "normalized_name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "abilities_source_external_uidx": {
+          "name": "abilities_source_external_uidx",
+          "columns": [
+            {
+              "expression": "data_source_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "external_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "abilities_data_source_id_data_sources_id_fk": {
+          "name": "abilities_data_source_id_data_sources_id_fk",
+          "tableFrom": "abilities",
+          "tableTo": "data_sources",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "data_source_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.career_preferences": {
+      "name": "career_preferences",
+      "schema": "app",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "preferred_work_mode": {
+          "name": "preferred_work_mode",
+          "type": "work_mode",
+          "typeSchema": "career",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "preferred_employment_type": {
+          "name": "preferred_employment_type",
+          "type": "employment_type",
+          "typeSchema": "career",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "preferred_location": {
+          "name": "preferred_location",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "desired_experience_level": {
+          "name": "desired_experience_level",
+          "type": "experience_level",
+          "typeSchema": "career",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "minimum_salary": {
+          "name": "minimum_salary",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "salary_currency": {
+          "name": "salary_currency",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "career_preferences_user_id_users_id_fk": {
+          "name": "career_preferences_user_id_users_id_fk",
+          "tableFrom": "career_preferences",
+          "tableTo": "users",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "career_preferences_salary_check": {
+          "name": "career_preferences_salary_check",
+          "value": "\"app\".\"career_preferences\".\"minimum_salary\" is null or \"app\".\"career_preferences\".\"minimum_salary\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.certifications": {
+      "name": "certifications",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "issuer": {
+          "name": "issuer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "issued_date": {
+          "name": "issued_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "expiration_date": {
+          "name": "expiration_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "credential_url": {
+          "name": "credential_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "certifications_user_idx": {
+          "name": "certifications_user_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "certifications_user_id_users_id_fk": {
+          "name": "certifications_user_id_users_id_fk",
+          "tableFrom": "certifications",
+          "tableTo": "users",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "career.data_import_runs": {
+      "name": "data_import_runs",
+      "schema": "career",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "data_source_id": {
+          "name": "data_source_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "importer": {
+          "name": "importer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "import_status",
+          "typeSchema": "career",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "statistics": {
+          "name": "statistics",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        },
+        "error_message": {
+          "name": "error_message",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "started_at": {
+          "name": "started_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "completed_at": {
+          "name": "completed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "data_import_runs_source_idx": {
+          "name": "data_import_runs_source_idx",
+          "columns": [
+            {
+              "expression": "data_source_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "started_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "data_import_runs_data_source_id_data_sources_id_fk": {
+          "name": "data_import_runs_data_source_id_data_sources_id_fk",
+          "tableFrom": "data_import_runs",
+          "tableTo": "data_sources",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "data_source_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "career.data_sources": {
+      "name": "data_sources",
+      "schema": "career",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "version": {
+          "name": "version",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_url": {
+          "name": "source_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "license": {
+          "name": "license",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "attribution": {
+          "name": "attribution",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "retrieved_at": {
+          "name": "retrieved_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_imported_at": {
+          "name": "last_imported_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "data_sources_name_version_uidx": {
+          "name": "data_sources_name_version_uidx",
+          "columns": [
+            {
+              "expression": "name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "version",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.education": {
+      "name": "education",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "institution": {
+          "name": "institution",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "field_of_study": {
+          "name": "field_of_study",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "degree": {
+          "name": "degree",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "start_date": {
+          "name": "start_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "end_date": {
+          "name": "end_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "education_user_idx": {
+          "name": "education_user_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "education_user_id_users_id_fk": {
+          "name": "education_user_id_users_id_fk",
+          "tableFrom": "education",
+          "tableTo": "users",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.experiences": {
+      "name": "experiences",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "organization": {
+          "name": "organization",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "start_date": {
+          "name": "start_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "end_date": {
+          "name": "end_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "experiences_user_idx": {
+          "name": "experiences_user_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "experiences_user_id_users_id_fk": {
+          "name": "experiences_user_id_users_id_fk",
+          "tableFrom": "experiences",
+          "tableTo": "users",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "career.external_mappings": {
+      "name": "external_mappings",
+      "schema": "career",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "entity_type": {
+          "name": "entity_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entity_id": {
+          "name": "entity_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data_source_id": {
+          "name": "data_source_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "external_id": {
+          "name": "external_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "external_uri": {
+          "name": "external_uri",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "mapping_status",
+          "typeSchema": "career",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'unresolved'"
+        },
+        "confidence": {
+          "name": "confidence",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "external_mappings_source_id_uidx": {
+          "name": "external_mappings_source_id_uidx",
+          "columns": [
+            {
+              "expression": "entity_type",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "data_source_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "external_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "external_mappings_entity_idx": {
+          "name": "external_mappings_entity_idx",
+          "columns": [
+            {
+              "expression": "entity_type",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "entity_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "external_mappings_data_source_id_data_sources_id_fk": {
+          "name": "external_mappings_data_source_id_data_sources_id_fk",
+          "tableFrom": "external_mappings",
+          "tableTo": "data_sources",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "data_source_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "external_mappings_confidence_check": {
+          "name": "external_mappings_confidence_check",
+          "value": "\"career\".\"external_mappings\".\"confidence\" is null or \"career\".\"external_mappings\".\"confidence\" between 0 and 1"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "career.interests": {
+      "name": "interests",
+      "schema": "career",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "normalized_name": {
+          "name": "normalized_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_source_id": {
+          "name": "data_source_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "external_id": {
+          "name": "external_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "interests_normalized_name_uidx": {
+          "name": "interests_normalized_name_uidx",
+          "columns": [
+            {
+              "expression": "normalized_name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "interests_source_external_uidx": {
+          "name": "interests_source_external_uidx",
+          "columns": [
+            {
+              "expression": "data_source_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "external_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "interests_data_source_id_data_sources_id_fk": {
+          "name": "interests_data_source_id_data_sources_id_fk",
+          "tableFrom": "interests",
+          "tableTo": "data_sources",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "data_source_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.interview_answers": {
+      "name": "interview_answers",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "question_id": {
+          "name": "question_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "answer": {
+          "name": "answer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "feedback": {
+          "name": "feedback",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "score": {
+          "name": "score",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "interview_answers_question_uidx": {
+          "name": "interview_answers_question_uidx",
+          "columns": [
+            {
+              "expression": "question_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "interview_answers_question_id_interview_questions_id_fk": {
+          "name": "interview_answers_question_id_interview_questions_id_fk",
+          "tableFrom": "interview_answers",
+          "tableTo": "interview_questions",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "question_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "interview_answers_score_check": {
+          "name": "interview_answers_score_check",
+          "value": "\"app\".\"interview_answers\".\"score\" is null or \"app\".\"interview_answers\".\"score\" between 0 and 100"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.interview_questions": {
+      "name": "interview_questions",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "session_id": {
+          "name": "session_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "question": {
+          "name": "question",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "question_type": {
+          "name": "question_type",
+          "type": "question_type",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rubric": {
+          "name": "rubric",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "interview_questions_session_idx": {
+          "name": "interview_questions_session_idx",
+          "columns": [
+            {
+              "expression": "session_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "interview_questions_session_id_interview_sessions_id_fk": {
+          "name": "interview_questions_session_id_interview_sessions_id_fk",
+          "tableFrom": "interview_questions",
+          "tableTo": "interview_sessions",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "session_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.interview_sessions": {
+      "name": "interview_sessions",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "target_occupation_id": {
+          "name": "target_occupation_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "job_id": {
+          "name": "job_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "mode": {
+          "name": "mode",
+          "type": "interview_mode",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "difficulty": {
+          "name": "difficulty",
+          "type": "difficulty",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "started_at": {
+          "name": "started_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "completed_at": {
+          "name": "completed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "interview_sessions_user_idx": {
+          "name": "interview_sessions_user_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "interview_sessions_user_id_users_id_fk": {
+          "name": "interview_sessions_user_id_users_id_fk",
+          "tableFrom": "interview_sessions",
+          "tableTo": "users",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "interview_sessions_target_occupation_id_occupations_id_fk": {
+          "name": "interview_sessions_target_occupation_id_occupations_id_fk",
+          "tableFrom": "interview_sessions",
+          "tableTo": "occupations",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "target_occupation_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "interview_sessions_job_id_jobs_id_fk": {
+          "name": "interview_sessions_job_id_jobs_id_fk",
+          "tableFrom": "interview_sessions",
+          "tableTo": "jobs",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "job_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "career.job_skills": {
+      "name": "job_skills",
+      "schema": "career",
+      "columns": {
+        "job_id": {
+          "name": "job_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "skill_id": {
+          "name": "skill_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "requirement_type": {
+          "name": "requirement_type",
+          "type": "requirement_type",
+          "typeSchema": "career",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "importance": {
+          "name": "importance",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 50
+        }
+      },
+      "indexes": {
+        "job_skills_skill_idx": {
+          "name": "job_skills_skill_idx",
+          "columns": [
+            {
+              "expression": "skill_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "job_skills_job_id_jobs_id_fk": {
+          "name": "job_skills_job_id_jobs_id_fk",
+          "tableFrom": "job_skills",
+          "tableTo": "jobs",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "job_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "job_skills_skill_id_skills_id_fk": {
+          "name": "job_skills_skill_id_skills_id_fk",
+          "tableFrom": "job_skills",
+          "tableTo": "skills",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "skill_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "job_skills_job_id_skill_id_pk": {
+          "name": "job_skills_job_id_skill_id_pk",
+          "columns": [
+            "job_id",
+            "skill_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "job_skills_importance_check": {
+          "name": "job_skills_importance_check",
+          "value": "\"career\".\"job_skills\".\"importance\" between 0 and 100"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "career.jobs": {
+      "name": "jobs",
+      "schema": "career",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "external_id": {
+          "name": "external_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source": {
+          "name": "source",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "occupation_id": {
+          "name": "occupation_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "company_name": {
+          "name": "company_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "location": {
+          "name": "location",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "work_mode": {
+          "name": "work_mode",
+          "type": "work_mode",
+          "typeSchema": "career",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "employment_type": {
+          "name": "employment_type",
+          "type": "employment_type",
+          "typeSchema": "career",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "experience_level": {
+          "name": "experience_level",
+          "type": "experience_level",
+          "typeSchema": "career",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "minimum_years_experience": {
+          "name": "minimum_years_experience",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_synthetic": {
+          "name": "is_synthetic",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "published_at": {
+          "name": "published_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "jobs_source_external_uidx": {
+          "name": "jobs_source_external_uidx",
+          "columns": [
+            {
+              "expression": "source",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "external_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "jobs_title_idx": {
+          "name": "jobs_title_idx",
+          "columns": [
+            {
+              "expression": "title",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "jobs_occupation_idx": {
+          "name": "jobs_occupation_idx",
+          "columns": [
+            {
+              "expression": "occupation_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "jobs_occupation_id_occupations_id_fk": {
+          "name": "jobs_occupation_id_occupations_id_fk",
+          "tableFrom": "jobs",
+          "tableTo": "occupations",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "occupation_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "jobs_minimum_experience_check": {
+          "name": "jobs_minimum_experience_check",
+          "value": "\"career\".\"jobs\".\"minimum_years_experience\" is null or \"career\".\"jobs\".\"minimum_years_experience\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "career.knowledge_areas": {
+      "name": "knowledge_areas",
+      "schema": "career",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "normalized_name": {
+          "name": "normalized_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_source_id": {
+          "name": "data_source_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "external_id": {
+          "name": "external_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "knowledge_areas_normalized_name_uidx": {
+          "name": "knowledge_areas_normalized_name_uidx",
+          "columns": [
+            {
+              "expression": "normalized_name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "knowledge_areas_source_external_uidx": {
+          "name": "knowledge_areas_source_external_uidx",
+          "columns": [
+            {
+              "expression": "data_source_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "external_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "knowledge_areas_data_source_id_data_sources_id_fk": {
+          "name": "knowledge_areas_data_source_id_data_sources_id_fk",
+          "tableFrom": "knowledge_areas",
+          "tableTo": "data_sources",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "data_source_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.motivation_letters": {
+      "name": "motivation_letters",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "target_company": {
+          "name": "target_company",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "target_role": {
+          "name": "target_role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "job_id": {
+          "name": "job_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "content": {
+          "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "motivation_letters_user_idx": {
+          "name": "motivation_letters_user_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "motivation_letters_user_id_users_id_fk": {
+          "name": "motivation_letters_user_id_users_id_fk",
+          "tableFrom": "motivation_letters",
+          "tableTo": "users",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "motivation_letters_job_id_jobs_id_fk": {
+          "name": "motivation_letters_job_id_jobs_id_fk",
+          "tableFrom": "motivation_letters",
+          "tableTo": "jobs",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "job_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "career.occupation_abilities": {
+      "name": "occupation_abilities",
+      "schema": "career",
+      "columns": {
+        "occupation_id": {
+          "name": "occupation_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ability_id": {
+          "name": "ability_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "importance": {
+          "name": "importance",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "level": {
+          "name": "level",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_source_id": {
+          "name": "data_source_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "original_values": {
+          "name": "original_values",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        }
+      },
+      "indexes": {
+        "occupation_abilities_ability_idx": {
+          "name": "occupation_abilities_ability_idx",
+          "columns": [
+            {
+              "expression": "ability_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "occupation_abilities_occupation_id_occupations_id_fk": {
+          "name": "occupation_abilities_occupation_id_occupations_id_fk",
+          "tableFrom": "occupation_abilities",
+          "tableTo": "occupations",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "occupation_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "occupation_abilities_ability_id_abilities_id_fk": {
+          "name": "occupation_abilities_ability_id_abilities_id_fk",
+          "tableFrom": "occupation_abilities",
+          "tableTo": "abilities",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "ability_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "occupation_abilities_data_source_id_data_sources_id_fk": {
+          "name": "occupation_abilities_data_source_id_data_sources_id_fk",
+          "tableFrom": "occupation_abilities",
+          "tableTo": "data_sources",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "data_source_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "occupation_abilities_occupation_id_ability_id_pk": {
+          "name": "occupation_abilities_occupation_id_ability_id_pk",
+          "columns": [
+            "occupation_id",
+            "ability_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "career.occupation_interests": {
+      "name": "occupation_interests",
+      "schema": "career",
+      "columns": {
+        "occupation_id": {
+          "name": "occupation_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "interest_id": {
+          "name": "interest_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "score": {
+          "name": "score",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data_source_id": {
+          "name": "data_source_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "original_values": {
+          "name": "original_values",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        }
+      },
+      "indexes": {
+        "occupation_interests_interest_idx": {
+          "name": "occupation_interests_interest_idx",
+          "columns": [
+            {
+              "expression": "interest_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "occupation_interests_occupation_id_occupations_id_fk": {
+          "name": "occupation_interests_occupation_id_occupations_id_fk",
+          "tableFrom": "occupation_interests",
+          "tableTo": "occupations",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "occupation_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "occupation_interests_interest_id_interests_id_fk": {
+          "name": "occupation_interests_interest_id_interests_id_fk",
+          "tableFrom": "occupation_interests",
+          "tableTo": "interests",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "interest_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "occupation_interests_data_source_id_data_sources_id_fk": {
+          "name": "occupation_interests_data_source_id_data_sources_id_fk",
+          "tableFrom": "occupation_interests",
+          "tableTo": "data_sources",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "data_source_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "occupation_interests_occupation_id_interest_id_pk": {
+          "name": "occupation_interests_occupation_id_interest_id_pk",
+          "columns": [
+            "occupation_id",
+            "interest_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "occupation_interests_score_check": {
+          "name": "occupation_interests_score_check",
+          "value": "\"career\".\"occupation_interests\".\"score\" between 0 and 100"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "career.occupation_knowledge": {
+      "name": "occupation_knowledge",
+      "schema": "career",
+      "columns": {
+        "occupation_id": {
+          "name": "occupation_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "knowledge_area_id": {
+          "name": "knowledge_area_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "importance": {
+          "name": "importance",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "level": {
+          "name": "level",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_source_id": {
+          "name": "data_source_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "original_values": {
+          "name": "original_values",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        }
+      },
+      "indexes": {
+        "occupation_knowledge_area_idx": {
+          "name": "occupation_knowledge_area_idx",
+          "columns": [
+            {
+              "expression": "knowledge_area_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "occupation_knowledge_occupation_id_occupations_id_fk": {
+          "name": "occupation_knowledge_occupation_id_occupations_id_fk",
+          "tableFrom": "occupation_knowledge",
+          "tableTo": "occupations",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "occupation_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "occupation_knowledge_knowledge_area_id_knowledge_areas_id_fk": {
+          "name": "occupation_knowledge_knowledge_area_id_knowledge_areas_id_fk",
+          "tableFrom": "occupation_knowledge",
+          "tableTo": "knowledge_areas",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "knowledge_area_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "occupation_knowledge_data_source_id_data_sources_id_fk": {
+          "name": "occupation_knowledge_data_source_id_data_sources_id_fk",
+          "tableFrom": "occupation_knowledge",
+          "tableTo": "data_sources",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "data_source_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "occupation_knowledge_occupation_id_knowledge_area_id_pk": {
+          "name": "occupation_knowledge_occupation_id_knowledge_area_id_pk",
+          "columns": [
+            "occupation_id",
+            "knowledge_area_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "career.occupation_skills": {
+      "name": "occupation_skills",
+      "schema": "career",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "occupation_id": {
+          "name": "occupation_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "skill_id": {
+          "name": "skill_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "importance": {
+          "name": "importance",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "level": {
+          "name": "level",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "requirement_type": {
+          "name": "requirement_type",
+          "type": "requirement_type",
+          "typeSchema": "career",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'required'"
+        },
+        "data_source_id": {
+          "name": "data_source_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "original_values": {
+          "name": "original_values",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        }
+      },
+      "indexes": {
+        "occupation_skills_relation_uidx": {
+          "name": "occupation_skills_relation_uidx",
+          "columns": [
+            {
+              "expression": "occupation_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "skill_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "data_source_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "occupation_skills_occupation_idx": {
+          "name": "occupation_skills_occupation_idx",
+          "columns": [
+            {
+              "expression": "occupation_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "occupation_skills_skill_idx": {
+          "name": "occupation_skills_skill_idx",
+          "columns": [
+            {
+              "expression": "skill_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "occupation_skills_occupation_id_occupations_id_fk": {
+          "name": "occupation_skills_occupation_id_occupations_id_fk",
+          "tableFrom": "occupation_skills",
+          "tableTo": "occupations",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "occupation_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "occupation_skills_skill_id_skills_id_fk": {
+          "name": "occupation_skills_skill_id_skills_id_fk",
+          "tableFrom": "occupation_skills",
+          "tableTo": "skills",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "skill_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "occupation_skills_data_source_id_data_sources_id_fk": {
+          "name": "occupation_skills_data_source_id_data_sources_id_fk",
+          "tableFrom": "occupation_skills",
+          "tableTo": "data_sources",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "data_source_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "occupation_skills_importance_check": {
+          "name": "occupation_skills_importance_check",
+          "value": "\"career\".\"occupation_skills\".\"importance\" is null or \"career\".\"occupation_skills\".\"importance\" between 0 and 100"
+        },
+        "occupation_skills_level_check": {
+          "name": "occupation_skills_level_check",
+          "value": "\"career\".\"occupation_skills\".\"level\" is null or \"career\".\"occupation_skills\".\"level\" between 0 and 100"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "career.occupation_technologies": {
+      "name": "occupation_technologies",
+      "schema": "career",
+      "columns": {
+        "occupation_id": {
+          "name": "occupation_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "technology_id": {
+          "name": "technology_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "importance": {
+          "name": "importance",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_source_id": {
+          "name": "data_source_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "original_values": {
+          "name": "original_values",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        }
+      },
+      "indexes": {
+        "occupation_technologies_technology_idx": {
+          "name": "occupation_technologies_technology_idx",
+          "columns": [
+            {
+              "expression": "technology_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "occupation_technologies_occupation_id_occupations_id_fk": {
+          "name": "occupation_technologies_occupation_id_occupations_id_fk",
+          "tableFrom": "occupation_technologies",
+          "tableTo": "occupations",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "occupation_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "occupation_technologies_technology_id_technologies_id_fk": {
+          "name": "occupation_technologies_technology_id_technologies_id_fk",
+          "tableFrom": "occupation_technologies",
+          "tableTo": "technologies",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "technology_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "occupation_technologies_data_source_id_data_sources_id_fk": {
+          "name": "occupation_technologies_data_source_id_data_sources_id_fk",
+          "tableFrom": "occupation_technologies",
+          "tableTo": "data_sources",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "data_source_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "occupation_technologies_occupation_id_technology_id_pk": {
+          "name": "occupation_technologies_occupation_id_technology_id_pk",
+          "columns": [
+            "occupation_id",
+            "technology_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "career.occupations": {
+      "name": "occupations",
+      "schema": "career",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "normalized_title": {
+          "name": "normalized_title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "career_cluster": {
+          "name": "career_cluster",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "education_level": {
+          "name": "education_level",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "job_zone": {
+          "name": "job_zone",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_source_id": {
+          "name": "data_source_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "external_id": {
+          "name": "external_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "occupations_source_external_uidx": {
+          "name": "occupations_source_external_uidx",
+          "columns": [
+            {
+              "expression": "data_source_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "external_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "occupations_title_idx": {
+          "name": "occupations_title_idx",
+          "columns": [
+            {
+              "expression": "title",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "occupations_data_source_id_data_sources_id_fk": {
+          "name": "occupations_data_source_id_data_sources_id_fk",
+          "tableFrom": "occupations",
+          "tableTo": "data_sources",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "data_source_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "occupations_job_zone_check": {
+          "name": "occupations_job_zone_check",
+          "value": "\"career\".\"occupations\".\"job_zone\" is null or \"career\".\"occupations\".\"job_zone\" between 1 and 5"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.profiles": {
+      "name": "profiles",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "full_name": {
+          "name": "full_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "headline": {
+          "name": "headline",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bio": {
+          "name": "bio",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "location": {
+          "name": "location",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "education_level": {
+          "name": "education_level",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "preferred_work_mode": {
+          "name": "preferred_work_mode",
+          "type": "work_mode",
+          "typeSchema": "career",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "profiles_user_uidx": {
+          "name": "profiles_user_uidx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "profiles_user_id_users_id_fk": {
+          "name": "profiles_user_id_users_id_fk",
+          "tableFrom": "profiles",
+          "tableTo": "users",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.project_skills": {
+      "name": "project_skills",
+      "schema": "app",
+      "columns": {
+        "project_id": {
+          "name": "project_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "skill_id": {
+          "name": "skill_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "project_skills_skill_idx": {
+          "name": "project_skills_skill_idx",
+          "columns": [
+            {
+              "expression": "skill_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "project_skills_project_id_projects_id_fk": {
+          "name": "project_skills_project_id_projects_id_fk",
+          "tableFrom": "project_skills",
+          "tableTo": "projects",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "project_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "project_skills_skill_id_skills_id_fk": {
+          "name": "project_skills_skill_id_skills_id_fk",
+          "tableFrom": "project_skills",
+          "tableTo": "skills",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "skill_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "project_skills_project_id_skill_id_pk": {
+          "name": "project_skills_project_id_skill_id_pk",
+          "columns": [
+            "project_id",
+            "skill_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.projects": {
+      "name": "projects",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "repository_url": {
+          "name": "repository_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "project_url": {
+          "name": "project_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "start_date": {
+          "name": "start_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "end_date": {
+          "name": "end_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "projects_user_idx": {
+          "name": "projects_user_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "projects_user_id_users_id_fk": {
+          "name": "projects_user_id_users_id_fk",
+          "tableFrom": "projects",
+          "tableTo": "users",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.resume_education": {
+      "name": "resume_education",
+      "schema": "app",
+      "columns": {
+        "resume_id": {
+          "name": "resume_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "education_id": {
+          "name": "education_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "resume_education_resume_id_resumes_id_fk": {
+          "name": "resume_education_resume_id_resumes_id_fk",
+          "tableFrom": "resume_education",
+          "tableTo": "resumes",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "resume_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "resume_education_education_id_education_id_fk": {
+          "name": "resume_education_education_id_education_id_fk",
+          "tableFrom": "resume_education",
+          "tableTo": "education",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "education_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "resume_education_resume_id_education_id_pk": {
+          "name": "resume_education_resume_id_education_id_pk",
+          "columns": [
+            "resume_id",
+            "education_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.resume_experiences": {
+      "name": "resume_experiences",
+      "schema": "app",
+      "columns": {
+        "resume_id": {
+          "name": "resume_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "experience_id": {
+          "name": "experience_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "resume_experiences_resume_id_resumes_id_fk": {
+          "name": "resume_experiences_resume_id_resumes_id_fk",
+          "tableFrom": "resume_experiences",
+          "tableTo": "resumes",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "resume_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "resume_experiences_experience_id_experiences_id_fk": {
+          "name": "resume_experiences_experience_id_experiences_id_fk",
+          "tableFrom": "resume_experiences",
+          "tableTo": "experiences",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "experience_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "resume_experiences_resume_id_experience_id_pk": {
+          "name": "resume_experiences_resume_id_experience_id_pk",
+          "columns": [
+            "resume_id",
+            "experience_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.resume_projects": {
+      "name": "resume_projects",
+      "schema": "app",
+      "columns": {
+        "resume_id": {
+          "name": "resume_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "project_id": {
+          "name": "project_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "resume_projects_resume_id_resumes_id_fk": {
+          "name": "resume_projects_resume_id_resumes_id_fk",
+          "tableFrom": "resume_projects",
+          "tableTo": "resumes",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "resume_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "resume_projects_project_id_projects_id_fk": {
+          "name": "resume_projects_project_id_projects_id_fk",
+          "tableFrom": "resume_projects",
+          "tableTo": "projects",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "project_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "resume_projects_resume_id_project_id_pk": {
+          "name": "resume_projects_resume_id_project_id_pk",
+          "columns": [
+            "resume_id",
+            "project_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.resume_skills": {
+      "name": "resume_skills",
+      "schema": "app",
+      "columns": {
+        "resume_id": {
+          "name": "resume_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "skill_id": {
+          "name": "skill_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "proficiency_override": {
+          "name": "proficiency_override",
+          "type": "proficiency_level",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "resume_skills_resume_id_resumes_id_fk": {
+          "name": "resume_skills_resume_id_resumes_id_fk",
+          "tableFrom": "resume_skills",
+          "tableTo": "resumes",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "resume_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "resume_skills_skill_id_skills_id_fk": {
+          "name": "resume_skills_skill_id_skills_id_fk",
+          "tableFrom": "resume_skills",
+          "tableTo": "skills",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "skill_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "resume_skills_resume_id_skill_id_pk": {
+          "name": "resume_skills_resume_id_skill_id_pk",
+          "columns": [
+            "resume_id",
+            "skill_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.resumes": {
+      "name": "resumes",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "summary": {
+          "name": "summary",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "target_occupation_id": {
+          "name": "target_occupation_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "resumes_user_idx": {
+          "name": "resumes_user_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "resumes_user_id_users_id_fk": {
+          "name": "resumes_user_id_users_id_fk",
+          "tableFrom": "resumes",
+          "tableTo": "users",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "resumes_target_occupation_id_occupations_id_fk": {
+          "name": "resumes_target_occupation_id_occupations_id_fk",
+          "tableFrom": "resumes",
+          "tableTo": "occupations",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "target_occupation_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.saved_jobs": {
+      "name": "saved_jobs",
+      "schema": "app",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "job_id": {
+          "name": "job_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "saved_at": {
+          "name": "saved_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "saved_jobs_user_id_users_id_fk": {
+          "name": "saved_jobs_user_id_users_id_fk",
+          "tableFrom": "saved_jobs",
+          "tableTo": "users",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "saved_jobs_job_id_jobs_id_fk": {
+          "name": "saved_jobs_job_id_jobs_id_fk",
+          "tableFrom": "saved_jobs",
+          "tableTo": "jobs",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "job_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "saved_jobs_user_id_job_id_pk": {
+          "name": "saved_jobs_user_id_job_id_pk",
+          "columns": [
+            "user_id",
+            "job_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "career.skill_aliases": {
+      "name": "skill_aliases",
+      "schema": "career",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "skill_id": {
+          "name": "skill_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "alias": {
+          "name": "alias",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "normalized_alias": {
+          "name": "normalized_alias",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "locale": {
+          "name": "locale",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'en'"
+        },
+        "data_source_id": {
+          "name": "data_source_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "external_id": {
+          "name": "external_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "skill_aliases_value_locale_uidx": {
+          "name": "skill_aliases_value_locale_uidx",
+          "columns": [
+            {
+              "expression": "normalized_alias",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "locale",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "skill_aliases_skill_idx": {
+          "name": "skill_aliases_skill_idx",
+          "columns": [
+            {
+              "expression": "skill_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "skill_aliases_skill_id_skills_id_fk": {
+          "name": "skill_aliases_skill_id_skills_id_fk",
+          "tableFrom": "skill_aliases",
+          "tableTo": "skills",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "skill_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "skill_aliases_data_source_id_data_sources_id_fk": {
+          "name": "skill_aliases_data_source_id_data_sources_id_fk",
+          "tableFrom": "skill_aliases",
+          "tableTo": "data_sources",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "data_source_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "career.skills": {
+      "name": "skills",
+      "schema": "career",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "normalized_name": {
+          "name": "normalized_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "category": {
+          "name": "category",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "kind": {
+          "name": "kind",
+          "type": "skill_kind",
+          "typeSchema": "career",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'skill'"
+        },
+        "primary_data_source_id": {
+          "name": "primary_data_source_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "external_id": {
+          "name": "external_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "skills_normalized_name_uidx": {
+          "name": "skills_normalized_name_uidx",
+          "columns": [
+            {
+              "expression": "normalized_name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "skills_source_external_uidx": {
+          "name": "skills_source_external_uidx",
+          "columns": [
+            {
+              "expression": "primary_data_source_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "external_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "skills_name_idx": {
+          "name": "skills_name_idx",
+          "columns": [
+            {
+              "expression": "name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "skills_primary_data_source_id_data_sources_id_fk": {
+          "name": "skills_primary_data_source_id_data_sources_id_fk",
+          "tableFrom": "skills",
+          "tableTo": "data_sources",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "primary_data_source_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "career.technologies": {
+      "name": "technologies",
+      "schema": "career",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "normalized_name": {
+          "name": "normalized_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category": {
+          "name": "category",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_source_id": {
+          "name": "data_source_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "external_id": {
+          "name": "external_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "technologies_normalized_name_uidx": {
+          "name": "technologies_normalized_name_uidx",
+          "columns": [
+            {
+              "expression": "normalized_name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "technologies_source_external_uidx": {
+          "name": "technologies_source_external_uidx",
+          "columns": [
+            {
+              "expression": "data_source_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "external_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "technologies_data_source_id_data_sources_id_fk": {
+          "name": "technologies_data_source_id_data_sources_id_fk",
+          "tableFrom": "technologies",
+          "tableTo": "data_sources",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "data_source_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.user_interests": {
+      "name": "user_interests",
+      "schema": "app",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "interest_id": {
+          "name": "interest_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "interest_level": {
+          "name": "interest_level",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "user_interests_user_id_users_id_fk": {
+          "name": "user_interests_user_id_users_id_fk",
+          "tableFrom": "user_interests",
+          "tableTo": "users",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "user_interests_interest_id_interests_id_fk": {
+          "name": "user_interests_interest_id_interests_id_fk",
+          "tableFrom": "user_interests",
+          "tableTo": "interests",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "interest_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "user_interests_user_id_interest_id_pk": {
+          "name": "user_interests_user_id_interest_id_pk",
+          "columns": [
+            "user_id",
+            "interest_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "user_interests_level_check": {
+          "name": "user_interests_level_check",
+          "value": "\"app\".\"user_interests\".\"interest_level\" between 1 and 5"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.user_skills": {
+      "name": "user_skills",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "skill_id": {
+          "name": "skill_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "proficiency_level": {
+          "name": "proficiency_level",
+          "type": "proficiency_level",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "years_experience": {
+          "name": "years_experience",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source": {
+          "name": "source",
+          "type": "user_skill_source",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'self_assessed'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "user_skills_user_skill_uidx": {
+          "name": "user_skills_user_skill_uidx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "skill_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "user_skills_user_idx": {
+          "name": "user_skills_user_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "user_skills_user_id_users_id_fk": {
+          "name": "user_skills_user_id_users_id_fk",
+          "tableFrom": "user_skills",
+          "tableTo": "users",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "user_skills_skill_id_skills_id_fk": {
+          "name": "user_skills_skill_id_skills_id_fk",
+          "tableFrom": "user_skills",
+          "tableTo": "skills",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "skill_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "user_skills_years_check": {
+          "name": "user_skills_years_check",
+          "value": "\"app\".\"user_skills\".\"years_experience\" is null or \"app\".\"user_skills\".\"years_experience\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.user_target_occupations": {
+      "name": "user_target_occupations",
+      "schema": "app",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "occupation_id": {
+          "name": "occupation_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "priority": {
+          "name": "priority",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "user_target_occupations_user_id_users_id_fk": {
+          "name": "user_target_occupations_user_id_users_id_fk",
+          "tableFrom": "user_target_occupations",
+          "tableTo": "users",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "user_target_occupations_occupation_id_occupations_id_fk": {
+          "name": "user_target_occupations_occupation_id_occupations_id_fk",
+          "tableFrom": "user_target_occupations",
+          "tableTo": "occupations",
+          "schemaTo": "career",
+          "columnsFrom": [
+            "occupation_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "user_target_occupations_user_id_occupation_id_pk": {
+          "name": "user_target_occupations_user_id_occupation_id_pk",
+          "columns": [
+            "user_id",
+            "occupation_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "user_target_occupations_priority_check": {
+          "name": "user_target_occupations_priority_check",
+          "value": "\"app\".\"user_target_occupations\".\"priority\" between 1 and 5"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.users": {
+      "name": "users",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "auth_provider": {
+          "name": "auth_provider",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "auth_subject": {
+          "name": "auth_subject",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "users_email_uidx": {
+          "name": "users_email_uidx",
+          "columns": [
+            {
+              "expression": "email",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "users_auth_identity_uidx": {
+          "name": "users_auth_identity_uidx",
+          "columns": [
+            {
+              "expression": "auth_provider",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "auth_subject",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "app.difficulty": {
+      "name": "difficulty",
+      "schema": "app",
+      "values": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ]
+    },
+    "career.employment_type": {
+      "name": "employment_type",
+      "schema": "career",
+      "values": [
+        "full_time",
+        "part_time",
+        "contract",
+        "internship",
+        "freelance",
+        "temporary"
+      ]
+    },
+    "career.experience_level": {
+      "name": "experience_level",
+      "schema": "career",
+      "values": [
+        "entry",
+        "junior",
+        "mid",
+        "senior",
+        "lead",
+        "executive"
+      ]
+    },
+    "career.import_status": {
+      "name": "import_status",
+      "schema": "career",
+      "values": [
+        "running",
+        "completed",
+        "failed"
+      ]
+    },
+    "app.interview_mode": {
+      "name": "interview_mode",
+      "schema": "app",
+      "values": [
+        "practice",
+        "mock",
+        "assessment"
+      ]
+    },
+    "career.mapping_status": {
+      "name": "mapping_status",
+      "schema": "career",
+      "values": [
+        "exact",
+        "reviewed",
+        "manual_review",
+        "unresolved",
+        "rejected"
+      ]
+    },
+    "app.proficiency_level": {
+      "name": "proficiency_level",
+      "schema": "app",
+      "values": [
+        "beginner",
+        "intermediate",
+        "advanced",
+        "expert"
+      ]
+    },
+    "app.question_type": {
+      "name": "question_type",
+      "schema": "app",
+      "values": [
+        "behavioral",
+        "technical",
+        "situational",
+        "case_study"
+      ]
+    },
+    "career.requirement_type": {
+      "name": "requirement_type",
+      "schema": "career",
+      "values": [
+        "required",
+        "preferred"
+      ]
+    },
+    "career.skill_kind": {
+      "name": "skill_kind",
+      "schema": "career",
+      "values": [
+        "skill",
+        "competence",
+        "language"
+      ]
+    },
+    "app.user_skill_source": {
+      "name": "user_skill_source",
+      "schema": "app",
+      "values": [
+        "self_assessed",
+        "resume",
+        "project",
+        "verified",
+        "imported"
+      ]
+    },
+    "career.work_mode": {
+      "name": "work_mode",
+      "schema": "career",
+      "values": [
+        "onsite",
+        "hybrid",
+        "remote",
+        "flexible"
+      ]
+    }
+  },
+  "schemas": {
+    "app": "app",
+    "career": "career"
+  },
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

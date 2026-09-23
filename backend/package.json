@@ -1,0 +1,48 @@
+{
+  "name": "@careermate/backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/server.js",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "tsx --test test/**/*.test.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx src/db/migrate.ts",
+    "db:migrate:prod": "node dist/db/migrate.js",
+    "db:check": "drizzle-kit check",
+    "db:seed": "tsx src/db/seed-cli.ts",
+    "db:seed:prod": "node dist/db/seed-cli.js",
+    "data:import:onet": "tsx src/data-import/cli.ts onet",
+    "data:import:esco": "tsx src/data-import/cli.ts esco",
+    "data:import:kbji": "tsx src/data-import/cli.ts kbji",
+    "data:build-seed": "tsx src/data-import/build-seed.ts"
+  },
+  "dependencies": {
+    "@careermate/contracts": "*",
+    "@electric-sql/pglite": "^0.5.8",
+    "@fastify/cors": "^11.3.0",
+    "@fastify/helmet": "^13.1.1",
+    "@fastify/rate-limit": "^11.2.0",
+    "csv-parse": "^7.0.2",
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "0.45.2",
+    "fastify": "^5.12.4",
+    "jose": "^6.2.12",
+    "pg": "^8.23.0",
+    "zod": "^3.25.76",
+    "zod-to-json-schema": "^3.25.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.3",
+    "@types/pg": "^8.23.1",
+    "drizzle-kit": "0.31.10",
+    "tsx": "^4.23.13",
+    "typescript": "^5.8.3"
+  }
+}

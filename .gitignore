@@ -8,9 +8,75 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+**/node_modules
 dist
+**/dist
 dist-ssr
+**/dist-ssr
+coverage
+**/coverage
+.env
+.env.*
+*.env
+*.env.*
+!.env.example
+!**/.env.example
+!*.env.example
+!**/*.env.example
+!**/.env.production.example
+.envrc
+.direnv/
 *.local
+*.tsbuildinfo
+.vite
+**/.vite
+.cache/
+**/.cache/
+.turbo/
+**/.turbo/
+.eslintcache
+playwright-report/
+**/playwright-report/
+test-results/
+**/test-results/
+
+# Secrets, certificates, and local credentials
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.crt
+*.cer
+credentials/
+**/credentials/
+secrets/
+**/secrets/
+**/service-account*.json
+**/*-firebase-adminsdk-*.json
+
+# Local databases and database exports
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.dump
+*.backup
+
+# Hosting and local platform state
+.vercel/
+**/.vercel/
+.netlify/
+**/.netlify/
+.render/
+**/.render/
+supabase/.temp/
+
+# Downloaded career datasets (keep only documentation/placeholders)
+backend/data/raw/**
+!backend/data/raw/**/
+!backend/data/raw/**/.gitkeep
 
 # Editor directories and files
 .vscode/*
@@ -22,3 +88,25 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Operating system files
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+[Dd]esktop.ini
+
+# Binary installers and executables
+*.exe
+*.msi
+*.dmg
+*.pkg
+*.deb
+*.rpm
+
+# Temporary files and scratch pads
+scratch/
+tmp/
+temp/
+*.tmp
+*.temp
