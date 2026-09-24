@@ -29,7 +29,7 @@ const CVMateDashboard = () => {
         <Card className="max-w-lg p-8 text-center">
           <FileSearch className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
           <h1 className="mb-2 text-2xl font-bold">Belum ada hasil review</h1>
-          <p className="mb-6 text-muted-foreground">Kirim isi CV melalui CVMate agar backend dapat menghasilkan hasil yang tervalidasi.</p>
+          <p className="mb-6 text-muted-foreground">Masukkan isi CV melalui CVMate untuk melihat contoh hasil review.</p>
           <Button asChild><Link to="/cvmate">Mulai review CV</Link></Button>
         </Card>
       </div>
@@ -51,7 +51,7 @@ const CVMateDashboard = () => {
           <Card className="flex flex-col items-center justify-center p-8 text-center">
             <div className="mb-3 text-6xl font-bold text-primary">{Math.round(review.score)}</div>
             <p className="font-semibold">Skor review</p>
-            <p className="mt-2 text-xs text-muted-foreground">Dihasilkan oleh provider AI yang dikonfigurasi; bukan jaminan lolos ATS atau rekrutmen.</p>
+            <p className="mt-2 text-xs text-muted-foreground">Skor fixture simulasi; bukan hasil AI dan bukan jaminan lolos ATS atau rekrutmen.</p>
           </Card>
           <Card>
             <CardHeader><CardTitle className="flex items-center gap-2"><CheckCircle2 className="h-5 w-5 text-emerald-500" />Kekuatan utama</CardTitle></CardHeader>
@@ -90,7 +90,7 @@ const CVMateDashboard = () => {
         </Card>
 
         <Card className="flex flex-col items-center justify-between gap-4 bg-primary/5 p-6 sm:flex-row">
-          <div><h3 className="font-semibold">Lanjutkan dengan data pekerjaan CareerMate</h3><p className="text-sm text-muted-foreground">Skor job match dihitung backend dari profil terstruktur, bukan dari hasil CV ini.</p></div>
+          <div><h3 className="font-semibold">Lanjutkan ke JobMate</h3><p className="text-sm text-muted-foreground">Lihat contoh skor job match berbasis profil demo lokal.</p></div>
           <Button asChild><Link to="/jobmate"><Briefcase className="mr-2 h-4 w-4" />Buka JobMate</Link></Button>
         </Card>
       </main>

@@ -6,15 +6,17 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import DemoModeNotice from '@/components/DemoModeNotice';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ApiClientError, careerMateApi } from '@/lib/api-client';
 import { buildCandidateProfile } from '@/lib/candidate-profile';
 import { formatCvReviewSummary, listCvReviewHistory, type CvReviewHistoryItem } from '@/lib/cv-review-history';
 import { signOut } from '@/lib/auth-client';
+import { isDemoMode } from '@/lib/demo-mode';
 
 function errorMessage(error: unknown): string {
   if (error instanceof ApiClientError) return error.message;
-  return 'Dashboard tidak dapat mengambil data dari backend.';
+  return 'Dashboard tidak dapat memuat data.';
 }
 
 const Dashboard = () => {
@@ -90,10 +92,11 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-primary/5">
       <header className="border-b bg-background/90 backdrop-blur">
-        <div className="container mx-auto flex items-center justify-between px-6 py-4"><Link to="/" className="text-2xl font-bold text-primary">CareerMate</Link><div className="flex items-center gap-3"><Badge variant="outline" className="hidden sm:inline-flex">Profil backend aktif</Badge><Button asChild variant="outline"><Link to="/">Beranda</Link></Button><Button variant="ghost" onClick={() => { signOut(); navigate('/login'); }}>Keluar</Button></div></div>
+        <div className="container mx-auto flex items-center justify-between px-6 py-4"><Link to="/" className="text-2xl font-bold text-primary">CareerMate</Link><div className="flex items-center gap-3"><Badge variant="outline" className="hidden sm:inline-flex">{isDemoMode ? 'Demo lokal aktif' : 'Profil aktif'}</Badge><Button asChild variant="outline"><Link to="/">Beranda</Link></Button><Button variant="ghost" onClick={() => { signOut(); navigate('/login'); }}>Keluar</Button></div></div>
       </header>
 
       <main className="container mx-auto max-w-6xl px-6 py-12">
+        <DemoModeNotice />
         <div className="mb-10"><h1 className="text-4xl font-bold">Selamat datang, {data.profile.fullName}</h1><p className="mt-2 text-lg text-muted-foreground">{data.profile.headline ?? 'Lengkapi profil untuk rekomendasi yang lebih baik.'}</p></div>
 
         <div className="mb-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -101,10 +104,10 @@ const Dashboard = () => {
         </div>
 
         <div className="mb-10 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Button asChild size="lg" className="h-16"><Link to="/cvmate"><FileText className="mr-2 h-5 w-5" />Review CV nyata</Link></Button>
+          <Button asChild size="lg" className="h-16"><Link to="/cvmate"><FileText className="mr-2 h-5 w-5" />Simulasi review CV</Link></Button>
           <Button asChild size="lg" variant="outline" className="h-16"><Link to="/jobmate"><Briefcase className="mr-2 h-5 w-5" />Jelajahi pekerjaan</Link></Button>
           <Button asChild size="lg" variant="outline" className="h-16"><Link to="/interviewmate"><MessageCircle className="mr-2 h-5 w-5" />Latihan wawancara</Link></Button>
-          <Button asChild size="lg" variant="outline" className="h-16"><Link to="/cvmate/generate"><Sparkles className="mr-2 h-5 w-5" />Buat dokumen AI</Link></Button>
+          <Button asChild size="lg" variant="outline" className="h-16"><Link to="/cvmate/generate"><Sparkles className="mr-2 h-5 w-5" />Simulasi dokumen</Link></Button>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
@@ -120,12 +123,12 @@ const Dashboard = () => {
 
         <section className="pt-10">
           <Card className="border-primary/20">
-            <CardHeader><CardTitle className="flex items-center gap-2"><BrainCircuit className="h-5 w-5 text-primary" />Penjelasan jalur karier dengan AI</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="flex items-center gap-2"><BrainCircuit className="h-5 w-5 text-primary" />Simulasi penjelasan jalur karier</CardTitle></CardHeader>
             <CardContent className="space-y-5">
-              <p className="text-sm text-muted-foreground">AI menggunakan profil terstruktur dan kandidat pekerjaan hasil perhitungan deterministik untuk menjelaskan transferable skills, skill gap, serta langkah berikutnya. AI tidak menggantikan ranking dasar.</p>
-              <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm"><Checkbox checked={careerAiConsent} onCheckedChange={(value) => setCareerAiConsent(value === true)} /><span>Saya menyetujui pengiriman data profil untuk satu kali rekomendasi karier AI.</span></label>
+              <p className="text-sm text-muted-foreground">Versi demo menampilkan fixture lokal untuk memperagakan transferable skills, skill gap, dan langkah berikutnya. Hasil ini bukan analisis AI nyata.</p>
+              <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm"><Checkbox checked={careerAiConsent} onCheckedChange={(value) => setCareerAiConsent(value === true)} /><span>Saya memahami bahwa hasil rekomendasi ini hanya simulasi.</span></label>
               {careerAiMutation.isError && <p className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{errorMessage(careerAiMutation.error)}</p>}
-              <Button disabled={!careerAiConsent || careerAiMutation.isPending} onClick={() => careerAiMutation.mutate()}>{careerAiMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Menganalisis...</> : <><Sparkles className="mr-2 h-4 w-4" />Minta penjelasan AI</>}</Button>
+              <Button disabled={!careerAiConsent || careerAiMutation.isPending} onClick={() => careerAiMutation.mutate()}>{careerAiMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Menyiapkan simulasi...</> : <><Sparkles className="mr-2 h-4 w-4" />Lihat hasil simulasi</>}</Button>
               {careerAiMutation.data && <div className="grid gap-4 md:grid-cols-2">{careerAiMutation.data.recommendations.map((recommendation) => <div key={recommendation.role} className="rounded-lg border p-4"><div className="flex items-start justify-between gap-3"><h3 className="font-semibold">{recommendation.role}</h3><Badge>{Math.round(recommendation.matchScore)}%</Badge></div><p className="mt-2 text-sm text-muted-foreground">{recommendation.rationale}</p><p className="mt-3 text-xs font-semibold uppercase tracking-wide">Skill gap</p><div className="mt-2 flex flex-wrap gap-2">{recommendation.skillGaps.map((gap) => <Badge key={gap.skill} variant="outline">{gap.skill} · {gap.priority}</Badge>)}</div></div>)}</div>}
             </CardContent>
           </Card>
@@ -154,7 +157,7 @@ const Dashboard = () => {
         </section>
 
         <section id="insightmate" className="scroll-mt-24 pt-10">
-          <div className="mb-5"><div className="mb-2 flex items-center gap-2 text-primary"><TrendingUp className="h-5 w-5" /><span className="text-sm font-semibold uppercase tracking-wide">InsightMate</span></div><h2 className="text-2xl font-bold">Sinyal skill dan jalur karier</h2><p className="mt-1 text-sm text-muted-foreground">Referensi ini diambil dari taksonomi backend CareerMate, bukan daftar tren yang di-hard-code di frontend.</p></div>
+          <div className="mb-5"><div className="mb-2 flex items-center gap-2 text-primary"><TrendingUp className="h-5 w-5" /><span className="text-sm font-semibold uppercase tracking-wide">InsightMate</span></div><h2 className="text-2xl font-bold">Sinyal skill dan jalur karier</h2><p className="mt-1 text-sm text-muted-foreground">Pada versi ini, referensi berasal dari dataset demo lokal untuk memperagakan tampilan produk.</p></div>
           <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
             <Card>
               <CardHeader><CardTitle className="flex items-center gap-2"><Database className="h-5 w-5 text-primary" />Skill dalam taksonomi aktif</CardTitle></CardHeader>
@@ -162,7 +165,7 @@ const Dashboard = () => {
             </Card>
             <Card>
               <CardHeader><CardTitle>Referensi pekerjaan & kesiapan data gaji</CardTitle></CardHeader>
-              <CardContent className="space-y-3">{data.occupations.items.map((occupation) => <div key={occupation.id} className="rounded-lg border p-4"><div className="flex flex-wrap items-start justify-between gap-2"><div><h3 className="font-semibold">{occupation.title}</h3><p className="mt-1 text-xs text-muted-foreground">{occupation.careerCluster ?? 'Klasifikasi pekerjaan'}{occupation.jobZone ? ` · Job Zone ${occupation.jobZone}` : ''}</p></div><Badge variant="outline">Gaji: data belum tersedia</Badge></div></div>)}<p className="rounded-lg bg-amber-500/10 p-3 text-xs text-amber-700 dark:text-amber-300">Backend belum memiliki sumber kompensasi Indonesia. CareerMate tidak menampilkan estimasi rentang gaji sampai dataset dan sumbernya tersedia.</p></CardContent>
+              <CardContent className="space-y-3">{data.occupations.items.map((occupation) => <div key={occupation.id} className="rounded-lg border p-4"><div className="flex flex-wrap items-start justify-between gap-2"><div><h3 className="font-semibold">{occupation.title}</h3><p className="mt-1 text-xs text-muted-foreground">{occupation.careerCluster ?? 'Klasifikasi pekerjaan'}{occupation.jobZone ? ` · Job Zone ${occupation.jobZone}` : ''}</p></div><Badge variant="outline">Gaji: data belum tersedia</Badge></div></div>)}<p className="rounded-lg bg-amber-500/10 p-3 text-xs text-amber-700 dark:text-amber-300">Versi demo tidak menampilkan estimasi gaji karena belum memakai sumber data kompensasi yang dapat diverifikasi.</p></CardContent>
             </Card>
           </div>
         </section>

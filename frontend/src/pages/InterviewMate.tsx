@@ -18,6 +18,7 @@ import {
 import { useState } from 'react';
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
+import DemoModeNotice from '@/components/DemoModeNotice';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -37,7 +38,7 @@ type FeedbackInput = {
 
 function errorMessage(error: unknown): string {
   if (error instanceof ApiClientError) return error.message;
-  return 'Simulasi wawancara gagal diproses. Pastikan backend dan provider AI aktif.';
+  return 'Simulasi wawancara gagal diproses. Silakan coba kembali.';
 }
 
 const InterviewMate = () => {
@@ -122,8 +123,9 @@ const InterviewMate = () => {
     <div className="min-h-screen bg-gradient-to-b from-background to-primary/5">
       <Navbar />
       <main className="container mx-auto max-w-6xl px-4 pb-20 pt-32">
+        <DemoModeNotice />
         <div className="mx-auto mb-10 max-w-3xl text-center">
-          <Badge className="mb-4" variant="secondary"><Sparkles className="mr-1 h-3.5 w-3.5" />Evaluasi Baseline AI</Badge>
+          <Badge className="mb-4" variant="secondary"><Sparkles className="mr-1 h-3.5 w-3.5" />Simulasi Evaluasi</Badge>
           <h1 className="text-4xl font-bold md:text-6xl">InterviewMate</h1>
           <p className="mt-4 text-lg text-muted-foreground">Latihan adaptif sesuai posisi dan perusahaan target, lalu perbaiki jawaban Anda dengan rubrik STAR.</p>
         </div>
@@ -149,8 +151,8 @@ const InterviewMate = () => {
                   <div><label htmlFor="interview-job-description" className="mb-2 block text-sm font-medium">Deskripsi lowongan (opsional)</label><Textarea id="interview-job-description" value={jobDescription} onChange={(event) => setJobDescription(event.target.value)} placeholder="Tempel tanggung jawab dan kualifikasi utama agar pertanyaan lebih relevan." className="min-h-40" maxLength={29_000} /></div>
 
                   <Card className="border-primary/20 bg-primary/5 p-4">
-                    <div className="mb-3 flex items-start gap-3"><LockKeyhole className="mt-0.5 h-5 w-5 text-primary" /><div><p className="font-semibold">Persetujuan pemrosesan AI</p><p className="mt-1 text-sm text-muted-foreground">Konteks lowongan dan jawaban latihan akan dikirim ke provider AI yang dikonfigurasi untuk simulasi ini.</p></div></div>
-                    <label className="flex cursor-pointer items-start gap-3 text-sm"><Checkbox checked={planConsent} onCheckedChange={(value) => setPlanConsent(value === true)} /><span>Saya menyetujui pengiriman konteks ini untuk membuat satu rencana wawancara AI.</span></label>
+                    <div className="mb-3 flex items-start gap-3"><LockKeyhole className="mt-0.5 h-5 w-5 text-primary" /><div><p className="font-semibold">Konfirmasi simulasi</p><p className="mt-1 text-sm text-muted-foreground">Pertanyaan dan evaluasi adalah fixture lokal untuk memperagakan alur InterviewMate.</p></div></div>
+                    <label className="flex cursor-pointer items-start gap-3 text-sm"><Checkbox checked={planConsent} onCheckedChange={(value) => setPlanConsent(value === true)} /><span>Saya memahami bahwa rencana wawancara ini bukan hasil AI nyata.</span></label>
                   </Card>
 
                   {planMutation.isError && <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">{errorMessage(planMutation.error)}</div>}
@@ -179,7 +181,7 @@ const InterviewMate = () => {
               <Card className="border-primary/20 bg-primary/5 p-6">
                 <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
                   <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full border-8 border-primary/20 text-3xl font-bold text-primary">{readinessScore}</div>
-                  <div className="flex-1"><div className="mb-2 flex flex-wrap items-center gap-2"><h2 className="text-xl font-bold">{completedFeedback.length === plan.questions.length ? 'Skor kesiapan wawancara' : 'Skor sementara'}</h2><Badge>Evaluasi Baseline AI</Badge></div><p className="text-sm text-muted-foreground">Rata-rata dari {completedFeedback.length} jawaban yang telah dievaluasi. Skor ini adalah alat latihan, bukan jaminan hasil rekrutmen.</p></div>
+                  <div className="flex-1"><div className="mb-2 flex flex-wrap items-center gap-2"><h2 className="text-xl font-bold">{completedFeedback.length === plan.questions.length ? 'Skor kesiapan wawancara' : 'Skor sementara'}</h2><Badge>Skor demo</Badge></div><p className="text-sm text-muted-foreground">Rata-rata fixture dari {completedFeedback.length} jawaban yang telah dievaluasi. Skor ini hanya memperagakan tampilan dan bukan jaminan hasil rekrutmen.</p></div>
                   <Button variant="outline" disabled title="Tersedia untuk akun Premium setelah alur mentor diaktifkan"><UserCheck className="mr-2 h-4 w-4" />Minta Validasi Mentor HR</Button>
                 </div>
               </Card>
@@ -191,9 +193,9 @@ const InterviewMate = () => {
                   <CardHeader><div className="mb-2 flex items-center justify-between gap-3"><Badge variant="secondary">{currentQuestion.type}</Badge><span className="text-sm text-muted-foreground">#{currentQuestionIndex + 1}</span></div><CardTitle className="text-2xl leading-relaxed">{currentQuestion.question}</CardTitle></CardHeader>
                   <CardContent className="space-y-4">
                     <div><label htmlFor="interview-answer" className="mb-2 block text-sm font-medium">Jawaban Anda</label><Textarea id="interview-answer" value={currentAnswer} onChange={(event) => setAnswers((current) => ({ ...current, [currentQuestion.id]: event.target.value }))} placeholder="Susun jawaban: Situation → Task → Action → Result..." className="min-h-56" maxLength={20_000} /></div>
-                    <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 p-3 text-sm"><Checkbox checked={feedbackConsent} onCheckedChange={(value) => setFeedbackConsent(value === true)} /><span>Saya menyetujui pengiriman jawaban ini untuk satu kali evaluasi AI.</span></label>
+                    <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 p-3 text-sm"><Checkbox checked={feedbackConsent} onCheckedChange={(value) => setFeedbackConsent(value === true)} /><span>Saya memahami bahwa umpan balik jawaban ini hanya simulasi lokal.</span></label>
                     {feedbackMutation.isError && <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">{errorMessage(feedbackMutation.error)}</div>}
-                    <Button className="w-full" disabled={currentAnswer.trim().length === 0 || !feedbackConsent || feedbackMutation.isPending} onClick={() => feedbackMutation.mutate({ questionId: currentQuestion.id, question: currentQuestion.question, answer: currentAnswer.trim() })}>{feedbackMutation.isPending ? <><Loader2 className="mr-2 h-5 w-5 animate-spin" />Mengevaluasi jawaban...</> : <><Sparkles className="mr-2 h-5 w-5" />Evaluasi jawaban</>}</Button>
+                    <Button className="w-full" disabled={currentAnswer.trim().length === 0 || !feedbackConsent || feedbackMutation.isPending} onClick={() => feedbackMutation.mutate({ questionId: currentQuestion.id, question: currentQuestion.question, answer: currentAnswer.trim() })}>{feedbackMutation.isPending ? <><Loader2 className="mr-2 h-5 w-5 animate-spin" />Menyiapkan umpan balik...</> : <><Sparkles className="mr-2 h-5 w-5" />Lihat umpan balik simulasi</>}</Button>
                   </CardContent>
                 </Card>
 

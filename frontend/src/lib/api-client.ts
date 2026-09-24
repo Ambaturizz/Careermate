@@ -53,6 +53,8 @@ import {
 import { z } from 'zod';
 import { getAccessToken, hasAccessToken, setAccessToken } from '@/lib/auth-session';
 import { refreshSession } from '@/lib/auth-client';
+import { demoApiRequest } from '@/lib/demo-api';
+import { isDemoMode } from '@/lib/demo-mode';
 
 const runtimeEnv: Partial<ImportMetaEnv> & { DEV?: boolean } = (import.meta as ImportMeta & { env?: ImportMetaEnv }).env ?? {};
 const configuredTimeout = Number(runtimeEnv.VITE_API_TIMEOUT_MS ?? 90_000);
@@ -108,6 +110,20 @@ export class CareerMateApiClient {
     init: RequestInit = {},
     allowRefresh = true,
   ): Promise<Output> {
+    if (isDemoMode) {
+      if (!hasAccessToken()) {
+        throw new ApiClientError(401, 'DEMO_LOGIN_REQUIRED', 'Masuk dengan akun demo untuk membuka fitur CareerMate.');
+      }
+      try {
+        return outputSchema.parse(await demoApiRequest(path, init));
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          throw new ApiClientError(502, 'INVALID_DEMO_RESPONSE', 'Data simulasi frontend tidak valid.');
+        }
+        throw error;
+      }
+    }
+
     const headers = new Headers(init.headers);
     for (const [key, value] of Object.entries(this.authHeaders())) headers.set(key, value);
     if (init.body !== undefined) headers.set('content-type', 'application/json');

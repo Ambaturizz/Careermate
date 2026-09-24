@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
+import DemoModeNotice from '@/components/DemoModeNotice';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ApiClientError, careerMateApi } from '@/lib/api-client';
 import { loadCandidateProfile } from '@/lib/candidate-profile';
@@ -22,7 +23,7 @@ const modeLabels: Record<string, string> = {
 
 function errorMessage(error: unknown): string {
   if (error instanceof ApiClientError) return error.message;
-  return 'Tidak dapat terhubung ke backend CareerMate.';
+  return 'Data JobMate tidak dapat dimuat.';
 }
 
 export function JobResultCard({ job, onOpen }: { job: JobSummary; onOpen: (job: JobSummary) => void }) {
@@ -139,14 +140,15 @@ const JobMate = () => {
             <Button asChild variant="ghost" size="icon"><Link to="/dashboard"><ArrowLeft className="h-5 w-5" /></Link></Button>
             <h1 className="text-2xl font-bold text-primary">JobMate</h1>
           </div>
-          <Badge variant="outline" className="gap-1"><CheckCircle2 className="h-3.5 w-3.5" />Dataset backend aktif</Badge>
+          <Badge variant="outline" className="gap-1"><CheckCircle2 className="h-3.5 w-3.5" />Dataset demo lokal</Badge>
         </div>
       </header>
 
       <main className="container mx-auto max-w-6xl px-6 py-12">
+        <DemoModeNotice />
         <div className="mx-auto mb-10 max-w-3xl text-center">
-          <h2 className="mb-3 text-4xl font-bold">Lowongan dari dataset CareerMate</h2>
-          <p className="text-muted-foreground">Detail dan skor kecocokan dihitung oleh backend dari profil pengguna aktif.</p>
+          <h2 className="mb-3 text-4xl font-bold">Lowongan demo CareerMate</h2>
+          <p className="text-muted-foreground">Jelajahi contoh lowongan dan skor kecocokan untuk melihat alur produk frontend.</p>
         </div>
 
         <Card className="mb-8 p-5">
@@ -208,12 +210,12 @@ const JobMate = () => {
               )}
             </Card>
             <Card className="border-primary/20 p-5">
-              <div className="mb-3 flex items-center gap-2 font-semibold"><BrainCircuit className="h-5 w-5 text-primary" />Penjelasan kecocokan oleh AI</div>
-              <p className="mb-4 text-sm text-muted-foreground">Skor deterministik tetap menjadi dasar. AI hanya menjelaskan kecocokan dan skill gap dari profil serta lowongan yang sedang dibuka.</p>
-              <label className="mb-4 flex cursor-pointer items-start gap-3 rounded-lg bg-primary/5 p-3 text-sm"><Checkbox checked={aiConsent} onCheckedChange={(value) => setAiConsent(value === true)} /><span>Saya menyetujui pengiriman profil dan lowongan ini untuk satu kali analisis AI.</span></label>
+              <div className="mb-3 flex items-center gap-2 font-semibold"><BrainCircuit className="h-5 w-5 text-primary" />Simulasi penjelasan kecocokan</div>
+              <p className="mb-4 text-sm text-muted-foreground">Fixture lokal memperagakan bagaimana penjelasan kecocokan dan skill gap akan ditampilkan saat AI sungguhan dihubungkan nanti.</p>
+              <label className="mb-4 flex cursor-pointer items-start gap-3 rounded-lg bg-primary/5 p-3 text-sm"><Checkbox checked={aiConsent} onCheckedChange={(value) => setAiConsent(value === true)} /><span>Saya memahami bahwa analisis ini hanya simulasi.</span></label>
               {candidateProfileQuery.isError && <p className="mb-3 text-sm text-destructive">Profil tidak dapat dimuat untuk analisis AI.</p>}
               {aiMatchMutation.isError && <p className="mb-3 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{errorMessage(aiMatchMutation.error)}</p>}
-              <Button variant="outline" className="w-full" disabled={!aiConsent || !detailQuery.data || !candidateProfileQuery.data || aiMatchMutation.isPending} onClick={() => aiMatchMutation.mutate()}>{aiMatchMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Menganalisis...</> : <><Sparkles className="mr-2 h-4 w-4" />Minta analisis AI</>}</Button>
+              <Button variant="outline" className="w-full" disabled={!aiConsent || !detailQuery.data || !candidateProfileQuery.data || aiMatchMutation.isPending} onClick={() => aiMatchMutation.mutate()}>{aiMatchMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Menyiapkan simulasi...</> : <><Sparkles className="mr-2 h-4 w-4" />Lihat hasil simulasi</>}</Button>
               {aiMatchMutation.data?.matches[0] && <div className="mt-4 space-y-3 rounded-lg border p-4"><div className="flex items-center justify-between"><span className="font-semibold">{aiMatchMutation.data.matches[0].recommendation.replace('_', ' ')}</span><Badge>{Math.round(aiMatchMutation.data.matches[0].matchScore)}%</Badge></div><p className="text-sm text-muted-foreground">{aiMatchMutation.data.matches[0].rationale}</p><p className="text-sm"><strong>Skill cocok:</strong> {aiMatchMutation.data.matches[0].matchedSkills.join(', ') || 'Belum ada'}</p><p className="text-sm"><strong>Skill gap:</strong> {aiMatchMutation.data.matches[0].missingSkills.join(', ') || 'Tidak ada'}</p></div>}
             </Card>
             <Button className="w-full" disabled title="CareerMate belum mengirim lamaran ke pihak eksternal.">

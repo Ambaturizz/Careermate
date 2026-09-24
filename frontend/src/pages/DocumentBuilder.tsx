@@ -4,6 +4,7 @@ import { CheckCircle2, Download, FilePlus2, Loader2, LockKeyhole, Sparkles } fro
 import { useState } from 'react';
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
+import DemoModeNotice from '@/components/DemoModeNotice';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,7 +19,7 @@ type Tone = 'professional' | 'confident' | 'concise';
 
 function errorMessage(error: unknown): string {
   if (error instanceof ApiClientError) return error.message;
-  return 'Dokumen gagal dibuat. Periksa profil, backend, dan konfigurasi provider AI.';
+  return 'Simulasi dokumen gagal dibuat. Silakan coba kembali.';
 }
 
 const DocumentBuilder = () => {
@@ -64,10 +65,11 @@ const DocumentBuilder = () => {
     <div className="min-h-screen bg-gradient-to-b from-background to-primary/5">
       <Navbar />
       <main className="container mx-auto max-w-6xl px-4 pb-20 pt-32">
+        <DemoModeNotice />
         <div className="mx-auto mb-10 max-w-3xl text-center">
-          <Badge variant="secondary" className="mb-4"><Sparkles className="mr-1 h-3.5 w-3.5" />AI Document Builder</Badge>
+          <Badge variant="secondary" className="mb-4"><Sparkles className="mr-1 h-3.5 w-3.5" />Simulasi Document Builder</Badge>
           <h1 className="text-4xl font-bold md:text-6xl">Buat CV atau Motivation Letter</h1>
-          <p className="mt-4 text-lg text-muted-foreground">Konten dibuat hanya dari profil CareerMate Anda dan tidak boleh menambahkan pengalaman atau kredensial baru.</p>
+          <p className="mt-4 text-lg text-muted-foreground">Lihat contoh dokumen dari profil demo. Konten memakai fixture lokal dan perlu Anda sunting sebelum digunakan.</p>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
@@ -78,12 +80,12 @@ const DocumentBuilder = () => {
               <div><label htmlFor="builder-role" className="mb-2 block text-sm font-medium">Posisi target</label><Input id="builder-role" value={targetRole} onChange={(event) => setTargetRole(event.target.value)} placeholder="Contoh: Data Analyst" maxLength={200} /></div>
               <div><label htmlFor="builder-tone" className="mb-2 block text-sm font-medium">Gaya bahasa</label><select id="builder-tone" value={tone} onChange={(event) => setTone(event.target.value as Tone)} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"><option value="professional">Profesional</option><option value="confident">Percaya diri</option><option value="concise">Ringkas</option></select></div>
               <div><label htmlFor="builder-job" className="mb-2 block text-sm font-medium">Deskripsi lowongan (opsional)</label><Textarea id="builder-job" value={jobDescription} onChange={(event) => setJobDescription(event.target.value)} className="min-h-36" maxLength={30_000} /></div>
-              <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm"><Checkbox checked={consent} onCheckedChange={(value) => setConsent(value === true)} /><span>Saya menyetujui pengiriman data profil dan konteks lowongan untuk satu kali pembuatan dokumen AI.</span></label>
+              <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm"><Checkbox checked={consent} onCheckedChange={(value) => setConsent(value === true)} /><span>Saya memahami bahwa dokumen ini hanya contoh simulasi dan bukan hasil AI nyata.</span></label>
               {profileQuery.isLoading && <p className="flex items-center text-sm text-muted-foreground"><Loader2 className="mr-2 h-4 w-4 animate-spin" />Memuat profil...</p>}
-              {profileQuery.isError && <p className="text-sm text-destructive">Profil tidak dapat dimuat. Pastikan Anda sudah login dan backend aktif.</p>}
+              {profileQuery.isError && <p className="text-sm text-destructive">Profil demo tidak dapat dimuat. Pastikan Anda sudah login.</p>}
               {generateMutation.isError && <p className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{errorMessage(generateMutation.error)}</p>}
-              <Button className="w-full" size="lg" disabled={!canGenerate} onClick={() => generateMutation.mutate()}>{generateMutation.isPending ? <><Loader2 className="mr-2 h-5 w-5 animate-spin" />Membuat dokumen...</> : <><Sparkles className="mr-2 h-5 w-5" />Buat dokumen</>}</Button>
-              <p className="flex items-center gap-2 text-xs text-muted-foreground"><LockKeyhole className="h-4 w-4" />Consent direset setelah setiap request.</p>
+              <Button className="w-full" size="lg" disabled={!canGenerate} onClick={() => generateMutation.mutate()}>{generateMutation.isPending ? <><Loader2 className="mr-2 h-5 w-5 animate-spin" />Menyiapkan contoh...</> : <><Sparkles className="mr-2 h-5 w-5" />Buat contoh dokumen</>}</Button>
+              <p className="flex items-center gap-2 text-xs text-muted-foreground"><LockKeyhole className="h-4 w-4" />Semua proses berlangsung di browser.</p>
             </CardContent>
           </Card>
 

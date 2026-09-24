@@ -5,6 +5,7 @@ import { ArrowRight, CheckCircle2, FileText, Lightbulb, Loader2, LockKeyhole, Sh
 import { Link, useNavigate } from 'react-router-dom';
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
+import DemoModeNotice from '@/components/DemoModeNotice';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -18,7 +19,7 @@ const MAX_CONTENT_LENGTH = 50_000;
 
 function errorMessage(error: unknown): string {
   if (error instanceof ApiClientError) return error.message;
-  return 'Review CV gagal. Pastikan backend berjalan dan coba kembali.';
+  return 'Simulasi review CV gagal. Silakan coba kembali.';
 }
 
 const CVMate = () => {
@@ -88,11 +89,12 @@ const CVMate = () => {
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
       <Navbar />
       <main className="container mx-auto max-w-6xl px-4 pb-20 pt-32">
+        <DemoModeNotice />
         <div className="mx-auto mb-12 max-w-3xl text-center">
           <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10"><FileText className="h-7 w-7 text-primary" /></div>
           <h1 className="mb-4 text-4xl font-bold md:text-6xl">Review CV atau Motivation Letter</h1>
-          <p className="text-lg text-muted-foreground">Teks dokumen dikirim ke backend CareerMate dan hanya diteruskan ke provider AI setelah persetujuan eksplisit Anda.</p>
-          <Button asChild variant="outline" className="mt-5"><Link to="/cvmate/generate"><Sparkles className="mr-2 h-4 w-4" />Buat CV atau Motivation Letter dengan AI</Link></Button>
+          <p className="text-lg text-muted-foreground">Teks diproses secara lokal untuk menampilkan contoh hasil review. Tidak ada dokumen yang dikirim keluar dari browser.</p>
+          <Button asChild variant="outline" className="mt-5"><Link to="/cvmate/generate"><Sparkles className="mr-2 h-4 w-4" />Coba simulasi pembuatan dokumen</Link></Button>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
@@ -133,15 +135,15 @@ const CVMate = () => {
             </Card>
 
             <Card className="border-primary/20 bg-primary/5 p-6">
-              <div className="mb-4 flex items-start gap-3"><LockKeyhole className="mt-0.5 h-5 w-5 text-primary" /><div><h3 className="font-semibold">Persetujuan pemrosesan AI</h3><p className="mt-1 text-sm text-muted-foreground">Jika provider AI diaktifkan, isi CV dan konteks lowongan akan dikirim ke provider tersebut untuk satu kali review. Data tidak digunakan untuk training oleh CareerMate.</p></div></div>
-              <label className="flex cursor-pointer items-start gap-3 text-sm"><Checkbox checked={consent} onCheckedChange={(value) => setConsent(value === true)} /><span>Saya memahami dan menyetujui pemrosesan isi CV untuk review ini.</span></label>
+              <div className="mb-4 flex items-start gap-3"><LockKeyhole className="mt-0.5 h-5 w-5 text-primary" /><div><h3 className="font-semibold">Konfirmasi simulasi</h3><p className="mt-1 text-sm text-muted-foreground">Hasil berikut memakai respons hardcode untuk demonstrasi antarmuka dan bukan evaluasi AI atau ATS nyata.</p></div></div>
+              <label className="flex cursor-pointer items-start gap-3 text-sm"><Checkbox checked={consent} onCheckedChange={(value) => setConsent(value === true)} /><span>Saya memahami bahwa hasil review ini hanya simulasi.</span></label>
             </Card>
 
             {reviewMutation.isError && <Card className="border-destructive/30 p-4 text-sm text-destructive">{errorMessage(reviewMutation.error)}</Card>}
             <Button size="lg" className="w-full" disabled={!canSubmit} onClick={() => reviewMutation.mutate()}>
-              {reviewMutation.isPending ? <><Loader2 className="mr-2 h-5 w-5 animate-spin" />Memproses di backend...</> : <><Sparkles className="mr-2 h-5 w-5" />Review dokumen<ArrowRight className="ml-2 h-5 w-5" /></>}
+              {reviewMutation.isPending ? <><Loader2 className="mr-2 h-5 w-5 animate-spin" />Menyiapkan simulasi...</> : <><Sparkles className="mr-2 h-5 w-5" />Lihat simulasi review<ArrowRight className="ml-2 h-5 w-5" /></>}
             </Button>
-            <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground"><ShieldCheck className="h-4 w-4" />Tidak ada hasil simulasi atau skor hard-coded.</div>
+            <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground"><ShieldCheck className="h-4 w-4" />Isi dokumen tidak dikirim ke server mana pun.</div>
           </div>
         </div>
       </main>

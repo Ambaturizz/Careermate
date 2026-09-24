@@ -7,16 +7,17 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { registerWithPassword, signInWithPassword, type AuthResult } from '@/lib/auth-client';
+import { DEMO_EMAIL, DEMO_PASSWORD, isDemoMode } from '@/lib/demo-mode';
 
 type Mode = 'login' | 'register';
 
 const Login = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [mode, setMode] = useState<Mode>(searchParams.get('mode') === 'register' ? 'register' : 'login');
+  const [mode, setMode] = useState<Mode>(!isDemoMode && searchParams.get('mode') === 'register' ? 'register' : 'login');
   const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState(isDemoMode ? DEMO_EMAIL : '');
+  const [password, setPassword] = useState(isDemoMode ? DEMO_PASSWORD : '');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState('');
@@ -54,13 +55,14 @@ const Login = () => {
         <CardHeader className="text-center">
           <Link to="/" className="mx-auto mb-3 flex items-center gap-2"><BrandMark className="h-10 w-10" /><span className="text-2xl font-bold text-primary">CareerMate</span></Link>
           <CardTitle className="text-2xl">{mode === 'login' ? 'Masuk ke akun Anda' : 'Buat akun baru'}</CardTitle>
-          <p className="text-sm text-muted-foreground">{mode === 'login' ? 'Lanjutkan progres karier Anda di CareerMate.' : 'Mulai persiapan karier Anda dalam satu akun.'}</p>
+          <p className="text-sm text-muted-foreground">{isDemoMode ? 'Masuk ke versi demo tanpa backend.' : mode === 'login' ? 'Lanjutkan progres karier Anda di CareerMate.' : 'Mulai persiapan karier Anda dalam satu akun.'}</p>
         </CardHeader>
         <CardContent>
-          <div className="mb-5 grid grid-cols-2 rounded-lg bg-muted p-1">
+          {!isDemoMode && <div className="mb-5 grid grid-cols-2 rounded-lg bg-muted p-1">
             <Button type="button" variant={mode === 'login' ? 'default' : 'ghost'} size="sm" onClick={() => changeMode('login')}>Masuk</Button>
             <Button type="button" variant={mode === 'register' ? 'default' : 'ghost'} size="sm" onClick={() => changeMode('register')}>Daftar</Button>
-          </div>
+          </div>}
+          {isDemoMode && <div className="mb-5 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm"><p className="font-semibold">Akun demo publik</p><p className="mt-2">Email: <code className="font-mono">{DEMO_EMAIL}</code></p><p>Password: <code className="font-mono">{DEMO_PASSWORD}</code></p><p className="mt-2 text-xs text-muted-foreground">Kredensial ini hanya membuka simulasi di browser dan bukan sistem autentikasi aman.</p></div>}
           <form className="space-y-4" onSubmit={(event) => { event.preventDefault(); if (canSubmit) mutation.mutate(); }}>
             {mode === 'register' && <div><label htmlFor="auth-name" className="mb-2 block text-sm font-medium">Nama lengkap</label><Input id="auth-name" autoComplete="name" value={fullName} onChange={(event) => setFullName(event.target.value)} required minLength={2} maxLength={80} /></div>}
             <div><label htmlFor="auth-email" className="mb-2 block text-sm font-medium">Email</label><Input id="auth-email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></div>
@@ -74,8 +76,8 @@ const Login = () => {
             <Button type="submit" className="w-full" size="lg" disabled={!canSubmit || mutation.isPending}>
               {mutation.isPending ? <><Loader2 className="mr-2 h-5 w-5 animate-spin" />Memproses...</> : mode === 'login' ? <><LogIn className="mr-2 h-5 w-5" />Masuk</> : <><UserPlus className="mr-2 h-5 w-5" />Buat akun</>}
             </Button>
-            <div className="flex items-start gap-2 rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground"><ShieldCheck className="h-4 w-4 shrink-0" />Autentikasi diproses melalui backend CareerMate dan token digunakan untuk mengakses data akun Anda.</div>
-            <p className="flex items-center justify-center gap-1 text-xs text-muted-foreground"><LockKeyhole className="h-3.5 w-3.5" />Mode development tetap dapat memakai identity fixture lokal.</p>
+            <div className="flex items-start gap-2 rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground"><ShieldCheck className="h-4 w-4 shrink-0" />{isDemoMode ? 'Login diverifikasi di frontend dan sesi hanya disimpan pada tab browser ini.' : 'Autentikasi diproses melalui backend CareerMate dan token digunakan untuk mengakses data akun Anda.'}</div>
+            <p className="flex items-center justify-center gap-1 text-xs text-muted-foreground"><LockKeyhole className="h-3.5 w-3.5" />{isDemoMode ? 'Jangan gunakan kredensial ini untuk data sensitif.' : 'Mode development tetap dapat memakai identity fixture lokal.'}</p>
           </form>
         </CardContent>
       </Card>

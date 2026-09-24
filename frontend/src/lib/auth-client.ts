@@ -1,4 +1,12 @@
 import { clearAuthSession, getRefreshToken, setAuthSession } from '@/lib/auth-session';
+import {
+  DEMO_ACCESS_TOKEN,
+  DEMO_EMAIL,
+  DEMO_PASSWORD,
+  DEMO_REFRESH_TOKEN,
+  DEMO_USER_ID,
+  isDemoMode,
+} from '@/lib/demo-mode';
 
 const runtimeEnv: Partial<ImportMetaEnv> = (import.meta as ImportMeta & { env?: ImportMetaEnv }).env ?? {};
 const apiUrl = (runtimeEnv.VITE_API_URL ?? '/api/v1').replace(/\/$/, '');
@@ -55,6 +63,7 @@ async function authRequest(path: string, body: Record<string, string>): Promise<
 let refreshPromise: Promise<string | null> | null = null;
 
 export function refreshSession(): Promise<string | null> {
+  if (isDemoMode) return Promise.resolve(DEMO_ACCESS_TOKEN);
   if (refreshPromise) return refreshPromise;
   const refreshToken = getRefreshToken();
   if (!refreshToken) return Promise.resolve(null);
@@ -72,10 +81,26 @@ export function refreshSession(): Promise<string | null> {
 }
 
 export function signInWithPassword(email: string, password: string): Promise<AuthResult> {
+  if (isDemoMode) {
+    if (email.trim().toLowerCase() !== DEMO_EMAIL || password !== DEMO_PASSWORD) {
+      return Promise.reject(new Error('Email atau kata sandi demo salah. Gunakan akun yang tertera pada halaman ini.'));
+    }
+    setAuthSession(DEMO_ACCESS_TOKEN, DEMO_REFRESH_TOKEN);
+    return Promise.resolve({
+      status: 'authenticated',
+      user: { id: DEMO_USER_ID, email: DEMO_EMAIL, provider: 'development', fullName: 'CareerMate Demo' },
+      accessToken: DEMO_ACCESS_TOKEN,
+      refreshToken: DEMO_REFRESH_TOKEN,
+      expiresIn: null,
+    });
+  }
   return authRequest('login', { email, password });
 }
 
 export function registerWithPassword(fullName: string, email: string, password: string): Promise<AuthResult> {
+  if (isDemoMode) {
+    return Promise.reject(new Error('Registrasi dinonaktifkan pada versi demo frontend. Gunakan akun demo yang tersedia.'));
+  }
   return authRequest('register', { fullName, email, password });
 }
 
