@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/copy-build-to-root.mjs",
     "build:dev": "vite build --mode development",
     "typecheck": "tsc -b --pretty false",
     "test": "tsx --tsconfig tsconfig.app.json --test test/**/*.test.tsx",
